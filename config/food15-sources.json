@@ -1,0 +1,20 @@
+{
+  "sources": [
+    {
+      "id": "agrifreshnet_v1",
+      "source_url": "https://data.mendeley.com/datasets/42m5tb7yv9/1",
+      "download_url": "https://data.mendeley.com/public-files/datasets/42m5tb7yv9/files/7b216853-8f3b-47fd-b1ae-df88a367a1d1/file_downloaded",
+      "archive_sha256": "6607a48bf2817f9dfc8d4a1c32ce663c1d8308b4b1251e9bf65f074fcac53f11",
+      "version": "1",
+      "owner": "Fouzia Risdin; Hafsha Salauddin; Tasniya aziza tufa; Md Jakir Hossain",
+      "license_id": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "license_status": "Approved",
+      "checked_at": "2026-10-16",
+      "attribution": "Risdin et al. (2026), AgriFreshNET, Mendeley Data, V1, doi:10.17632/42m5tb7yv9.1",
+      "redistribution_allowed": true,
+      "mapping": {},
+      "notes": "Source offers three levels only. Five-level target labels remain unreviewed."
+    }
+  ]
+}
