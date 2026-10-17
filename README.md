@@ -34,6 +34,8 @@ Phạm vi Tươi/Hỏng: bò, gà, cừu; táo, chuối, cam; cà chua, dưa chu
 
 Các nhánh chức năng được kiểm thử trước khi merge vào `main`. Báo cáo thực nghiệm ghi rõ tập đánh giá, độ phủ và giới hạn.
 
+Xem [quy trình phát triển](docs/development.md), [thuật toán](docs/algorithms.md) và [kết quả đánh giá](docs/evaluation.md).
+
 ## Nguồn
 
 - [FoodClass V2](https://data.mendeley.com/datasets/5fjkkv5xgt/2), CC BY 4.0.
