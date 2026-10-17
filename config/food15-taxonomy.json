@@ -1,0 +1,102 @@
+{
+  "name": "FoodQuality-15-source-levels",
+  "foods": {
+    "beef": "meat",
+    "pork": "meat",
+    "chicken": "poultry",
+    "apple": "fruit",
+    "banana": "fruit",
+    "orange": "fruit",
+    "mango": "fruit",
+    "strawberry": "fruit",
+    "grape": "fruit",
+    "guava": "fruit",
+    "tomato": "vegetable",
+    "potato": "vegetable",
+    "cucumber": "vegetable",
+    "carrot": "vegetable",
+    "bell_pepper": "vegetable"
+  },
+  "conditions": {
+    "beef": [
+      "fresh",
+      "semi_fresh",
+      "spoiled"
+    ],
+    "pork": [
+      "fresh",
+      "semi_fresh",
+      "spoiled"
+    ],
+    "chicken": [
+      "fresh",
+      "spoiled"
+    ],
+    "apple": [
+      "fresh",
+      "semi_fresh",
+      "spoiled"
+    ],
+    "banana": [
+      "fresh",
+      "semi_fresh",
+      "spoiled"
+    ],
+    "orange": [
+      "fresh",
+      "semi_fresh",
+      "spoiled"
+    ],
+    "mango": [
+      "fresh",
+      "semi_fresh",
+      "spoiled"
+    ],
+    "strawberry": [
+      "fresh",
+      "semi_fresh",
+      "spoiled"
+    ],
+    "grape": [
+      "fresh",
+      "semi_fresh",
+      "spoiled"
+    ],
+    "guava": [
+      "fresh",
+      "semi_fresh",
+      "spoiled"
+    ],
+    "tomato": [
+      "fresh",
+      "semi_fresh",
+      "spoiled"
+    ],
+    "potato": [
+      "fresh",
+      "semi_fresh",
+      "spoiled"
+    ],
+    "cucumber": [
+      "fresh",
+      "semi_fresh",
+      "spoiled"
+    ],
+    "carrot": [
+      "fresh",
+      "semi_fresh",
+      "spoiled"
+    ],
+    "bell_pepper": [
+      "fresh",
+      "semi_fresh",
+      "spoiled"
+    ]
+  },
+  "condition_names_vi": {
+    "fresh": "Tươi theo nhãn nguồn",
+    "semi_fresh": "Ít tươi theo nhãn nguồn",
+    "spoiled": "Hỏng theo nhãn nguồn"
+  },
+  "note": "Preserve verified source grades per food. Three grades are provisional targets unless source data is verified; no synthetic intermediate grades."
+}
