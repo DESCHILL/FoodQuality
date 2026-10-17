@@ -13,3 +13,7 @@ class SourceDatasetTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'Thiếu lớp'):validate_rows(self.rows()[:-1])
     def test_complete_disjoint_release_passes(self):
         self.assertEqual(len(validate_rows(self.rows())),54)
+
+    def test_capture_group_can_contain_multiple_labels_in_one_split(self):
+        rows=self.rows();rows[3]['duplicate_group']=rows[0]['duplicate_group']
+        self.assertEqual(len(validate_rows(rows)),54)

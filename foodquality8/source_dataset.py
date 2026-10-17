@@ -7,10 +7,12 @@ def validate_rows(rows):
         split=row['split'];label=(row['food'],row['condition'])
         if split not in ('train','val','test') or label[0] not in FOODS or label[1] not in ('fresh','spoiled'):
             raise ValueError('Nhãn hoặc tập dữ liệu không hợp lệ.')
-        for index,key in ((groups,row['duplicate_group']),(hashes,row['sha256'])):
-            if key in index and index[key]!=(split,label):
-                raise ValueError('Ảnh trùng giữa các tập hoặc xung đột nhãn.')
-            index[key]=(split,label)
+        group=row['duplicate_group'];digest=row['sha256']
+        if group in groups and groups[group]!=split:
+            raise ValueError('Ảnh trùng giữa các tập hoặc xung đột nhãn.')
+        if digest in hashes and hashes[digest]!=(split,label):
+            raise ValueError('Ảnh trùng giữa các tập hoặc xung đột nhãn.')
+        groups[group]=split;hashes[digest]=(split,label)
         counts[(split,label)]=counts.get((split,label),0)+1
     for split in ('train','val','test'):
         for food in FOODS:
