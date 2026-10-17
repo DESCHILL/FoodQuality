@@ -13,6 +13,14 @@ from image_search import build_search_plan, export_excel, image_candidates, sear
 
 
 class ImageSearchTests(unittest.TestCase):
+    def test_diverse_queries_balance_quality_for_every_viewpoint(self):
+        plan=build_search_plan('cà chua',diversified=True)
+        views={p['viewpoint'] for p in plan if 'viewpoint' in p}
+        self.assertEqual(len(views),5)
+        for view in views:
+            self.assertEqual({p['stage'] for p in plan if p.get('viewpoint')==view},{'fresh','spoiled'})
+        self.assertTrue(all('tomato' in p['query'] for p in plan if p['language']=='en'))
+
     def test_demo_meat_mutton_has_binary_search_queries(self):
         plan=build_search_plan('thịt cừu')
         self.assertEqual({r['stage'] for r in plan},{'fresh','spoiled'})

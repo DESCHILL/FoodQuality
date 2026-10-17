@@ -43,7 +43,7 @@ FOOD_ENGLISH = {
 }
 
 
-def build_search_plan(food_name):
+def build_search_plan(food_name, diversified=False):
     """Deterministic query templates; no AI or generated freshness labels."""
     name = ' '.join(food_name.strip().split())
     if not name:
@@ -57,6 +57,11 @@ def build_search_plan(food_name):
         for key, label, vi, en in SEARCH_STAGES:
             query = f'{name} {vi} thực phẩm' if language == 'vi' else f'{english} {en} food'
             plan.append(dict(stage=key, stage_name=label, query=query, language=language))
+    if diversified:
+        for viewpoint in ('side view', 'top view', 'close up', 'natural lighting', 'on kitchen counter'):
+            for key, label, vi, en in SEARCH_STAGES:
+                plan.append(dict(stage=key,stage_name=label,
+                    query=f'{english} {en} food {viewpoint} photograph',language='en',viewpoint=viewpoint))
     return plan
 
 
@@ -251,12 +256,12 @@ def search_and_export(food_name, max_num, downloads_root, excel_path, stop_event
     if enough():
         return str(export_excel(food_name, rows, final_path, log_cb))
     from playwright.sync_api import sync_playwright, TimeoutError as BrowserTimeout, Error as BrowserError
-    plan = build_search_plan(food_name)
+    plan = build_search_plan(food_name, diversified=True)
     log_cb('[Tự tạo lệnh] 2 mức: Tươi / Hỏng, tiếng Việt và tiếng Anh:')
     for item in plan:
         log_cb(f'  {item["stage_name"]}: {item["query"]}')
     (folder / 'search-plan.json').write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding='utf8')
-    batch_size = max(1, min(10, (max_num + stage_count-1) // stage_count)) if max_num else 10
+    batch_size = max(1, min(3, (max_num + len(plan)-1) // len(plan))) if max_num else 3
     try:
         with sync_playwright() as driver:
             # Separate profile, no access to the user's personal browser profile.
