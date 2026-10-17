@@ -37,7 +37,7 @@ class TrainingTab(ttk.Frame):
         ttk.Button(picks,text='Chọn thư mục ảnh',command=self.folder).pack(side='left',padx=5)
         ttk.Button(picks,text='Chọn Excel',command=self.workbook).pack(side='left')
         ttk.Label(self,text='Ảnh có sẵn: chọn thư mục có các thư mục con Tuoi / Hong hoặc Excel có ảnh và chất lượng.\n'
-            'Dataset kết hợp SIC: học lại 9 loại từ dữ liệu đã nhập; giữ YOLO SIC, tự kiểm tra trước khi cập nhật website.\n'
+            'Dataset kết hợp SIC: tự tạo biến thể, học 9 loại với hai vùng 320×320; giữ YOLO SIC, kiểm tra trước khi cập nhật website.\n'
             'Nhãn/vùng tự động chưa được kiểm chứng; kết quả website sẽ ghi rõ chế độ thử nghiệm.',wraplength=840).pack(anchor='w',pady=12)
         actions=ttk.Frame(self)
         actions.pack(fill='x')
@@ -102,7 +102,7 @@ class TrainingTab(ttk.Frame):
         if source=='google' and self.excel:
             args+=['--excel',str(self.excel)]
         if sic_source:
-            args=[self.python,'-X','utf8','-u',str(self.project/'scripts/retrain_sic.py'),'--run',str(self.run_dir)]
+            args=[self.python,'-X','utf8','-u',str(self.project/'scripts/retrain_robust.py'),'--run',str(self.run_dir)]
         try:
             self.process=subprocess.Popen(args,cwd=self.project,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,
                 text=True,encoding='utf8',errors='replace',creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0),

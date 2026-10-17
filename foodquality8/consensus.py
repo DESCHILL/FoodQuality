@@ -40,7 +40,10 @@ class ConsensusPredictor:
         calibration=self.config['calibration']
         with torch.inference_mode():
             deep=self.base.encoder(self.base.transform(im).unsqueeze(0))[0]
-            x=((torch.cat([deep,torch.from_numpy(visual_features(im))])-self.base.data['mean'])/self.base.data['std']).clamp(-8,8)[None]
+            from .robust_views import LEGACY,extract_features
+            raw=(torch.cat([deep,torch.from_numpy(visual_features(im))]) if self.base.preprocessing==LEGACY
+                 else extract_features(self.base.encoder,[im],self.base.preprocessing)[0])
+            x=((raw-self.base.data['mean'])/self.base.data['std']).clamp(-8,8)[None]
             fq_logits=self.base.food(x)[0]
             fq_prob=(fq_logits/calibration['foodquality_temperature']).softmax(0)
             fq_index=int(fq_prob.argmax());fq_food=FOODS[fq_index]
