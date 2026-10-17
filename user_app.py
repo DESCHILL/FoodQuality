@@ -33,20 +33,23 @@ st.write('Tải ảnh hoặc chụp ảnh để xác định thực phẩm và q
 ready = False
 food9_mode=False
 fusion_mode=False
+consensus_mode=False
 if (ROOT/'models/food9.json').exists():
     with st.expander('Nguồn mô hình'):
         options=['Demo 9 loại · dataset có nhãn','Minh họa huấn luyện Google']
         if (ROOT/'models/fusion.json').exists(): options.insert(0,'Kết hợp SIC + FoodQuality')
+        if (ROOT/'models/consensus.json').exists(): options.insert(0,'Nhận diện từ cả 3 nguồn')
         selected=st.selectbox('Chế độ',options)
     fusion_mode=selected.startswith('Kết hợp')
-    food9_mode=selected.startswith('Demo') or fusion_mode
+    consensus_mode=selected.startswith('Nhận diện từ cả')
+    food9_mode=selected.startswith('Demo') or fusion_mode or consensus_mode
     if food9_mode:
-        BUNDLE=ROOT/'models/fusion.json' if fusion_mode else ROOT/'models/food9.json'
+        BUNDLE=ROOT/'models/consensus.json' if consensus_mode else ROOT/'models/fusion.json' if fusion_mode else ROOT/'models/food9.json'
 try:
     if food9_mode:
         import json
         registry=json.loads(BUNDLE.read_text(encoding='utf8'))
-        weight_registry=json.loads(Path(registry['quality_registry']).read_text(encoding='utf8')) if fusion_mode else registry
+        weight_registry=json.loads(Path(registry['quality_registry']).read_text(encoding='utf8')) if fusion_mode or consensus_mode else registry
         if not Path(weight_registry['weights']).is_file():
             raise ValueError('Thiếu trọng số demo 9 loại.')
         bundle={'detector':{'classes':registry['foods']},'classifier':{}}
@@ -59,6 +62,8 @@ try:
         st.caption('Nguồn: '+weight_registry['source']+' · Suy luận cục bộ.')
         if fusion_mode:
             st.caption('Ưu tiên bộ phân loại đã học từ hai nguồn; YOLO SIC hỗ trợ tìm vùng khi nhận dạng chưa rõ. Chất lượng chỉ hỗ trợ 9 loại trên; nhãn khác chưa được đánh giá Tươi/Hỏng.')
+        if consensus_mode:
+            st.caption('FoodQuality, SIC EfficientNet và SIC YOLO đều chạy. Chọn tên có điểm cao nhất sau hiệu chỉnh; đánh giá Tươi/Hỏng riêng, có thể chưa xác định khi các mô hình bất đồng.')
         st.info('Đánh giá ngoại quan theo nhãn dataset; không xác nhận an toàn ăn uống. Ảnh không rõ sẽ trả Chưa xác định.')
         st.caption('Dùng ảnh một loại thực phẩm trong phạm vi trên. Riêng thịt cừu có ít nhóm ảnh độc lập; kết quả còn hạn chế. Không hỗ trợ thịt lợn trong bản demo 9 loại.')
     elif any(bundle[k].get('experimental') for k in ('detector','classifier')):
@@ -69,6 +74,9 @@ except (ValueError, OSError, KeyError) as exc:
 @st.cache_resource
 def get_predictor(bundle_fingerprint, implementation_fingerprint, registry_path, use_food9):
     import importlib
+    if use_food9=='consensus':
+        from foodquality8 import consensus
+        return importlib.reload(consensus).ConsensusPredictor(registry_path)
     if use_food9=='fusion':
         from foodquality8 import food9,fusion
         importlib.reload(food9)
@@ -106,11 +114,12 @@ with right:
                 fingerprint=hashlib.sha256(BUNDLE.read_bytes()).hexdigest()
                 implementation_bytes=(ROOT/'foodquality8'/('food9.py' if food9_mode else 'inference.py')).read_bytes()
                 if fusion_mode: implementation_bytes+=(ROOT/'foodquality8/fusion.py').read_bytes()
+                if consensus_mode: implementation_bytes+=(ROOT/'foodquality8/consensus.py').read_bytes()
                 implementation=hashlib.sha256(implementation_bytes).hexdigest()
                 request_key=hashlib.sha256(uploaded.getvalue()).hexdigest()+fingerprint+implementation
                 fresh_result=st.session_state.get('analysis_key')!=request_key
                 if fresh_result:
-                    predictor=get_predictor(fingerprint,implementation,str(BUNDLE),'fusion' if fusion_mode else food9_mode)
+                    predictor=get_predictor(fingerprint,implementation,str(BUNDLE),'consensus' if consensus_mode else 'fusion' if fusion_mode else food9_mode)
                     rows=predictor.predict(image)
                     st.session_state['analysis_rows']=rows
                     st.session_state['analysis_key']=request_key
@@ -134,6 +143,16 @@ with right:
                         st.write(CONDITIONS.get(row['condition'],row['condition']))
                         st.caption(f"Điểm nhận diện: {row['detection_score']:.1%} · Điểm phân loại: {row['quality_score']:.1%}")
                         if row.get('prediction_source'): st.caption(row['prediction_source'])
+                        if row.get('source_scores'):
+                            with st.expander('Kết quả cả 3 bộ nhận diện',expanded=True):
+                                for source in row['source_scores']:
+                                    name=FOODS.get(source['food'],source['food']) if source['food'] else 'Không phát hiện'
+                                    st.write(f"{source['source']}: {name} — {source['score']:.1%}")
+                        if row.get('quality_evidence'):
+                            with st.expander('Đối chiếu trạng thái'):
+                                for item in row['quality_evidence']:
+                                    label='Bất thường ngoại quan' if item['condition']=='defect' else CONDITIONS.get(item['condition'],item['condition'])
+                                    st.write(f"{item['source']}: {FOODS.get(item['food'],item['food'])} · {label} — {item['score']:.1%}")
                         if row['reason']:
                             st.caption(row['reason'])
                         if row.get('visual_signs'):
