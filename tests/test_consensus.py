@@ -16,3 +16,8 @@ class ConsensusTests(unittest.TestCase):
 
     def test_quality_of_another_food_is_not_reused(self):
         self.assertEqual(decide_quality('tomato',[dict(food='apple',food_score=.99,score=.99,condition='fresh')])[0],'unknown')
+
+    def test_generic_defect_does_not_conflict_with_separate_spoilage_evidence(self):
+        evidence=[dict(food='tomato',food_score=.9,score=.9,condition='spoiled'),dict(food='tomato',food_score=.9,score=.95,condition='defect')]
+        self.assertEqual(decide_quality('tomato',evidence)[0],'spoiled')
+        self.assertEqual(decide_quality('tomato',evidence[1:])[0],'defect')

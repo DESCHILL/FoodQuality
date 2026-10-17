@@ -14,9 +14,11 @@ def select_recognition(sources):
 def decide_quality(food,evidence,threshold=.8):
     usable=[e for e in evidence if e['food']==food and e['food_score']>=.6 and e['score']>=threshold]
     if not usable:return 'unknown','Chưa đủ bằng chứng về trạng thái.'
-    if len({e['condition'] for e in usable})>1:
+    conditions={e['condition'] for e in usable}
+    if 'fresh' in conditions and conditions-{'fresh'}:
         return 'unknown','Các mô hình đánh giá trạng thái không thống nhất.'
-    return usable[0]['condition'],''
+    # Generic defects cannot establish spoilage, but do not contradict a separate spoiled prediction.
+    return ('spoiled' if 'spoiled' in conditions else usable[0]['condition']),''
 
 class ConsensusPredictor:
     def __init__(self,registry):
