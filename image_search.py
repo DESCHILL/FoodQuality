@@ -39,6 +39,7 @@ FOOD_ENGLISH = {
     'lon': 'pork', 'heo': 'pork', 'thit ga': 'chicken meat', 'ga': 'chicken meat',
     'ca': 'fish', 'du du': 'papaya', 'dua': 'pineapple', 'thom': 'pineapple',
     'ca tim': 'eggplant', 'kho qua': 'bitter melon', 'muop dang': 'bitter melon',
+    'thit cuu': 'mutton', 'cuu': 'mutton',
 }
 
 

@@ -13,6 +13,11 @@ from image_search import build_search_plan, export_excel, image_candidates, sear
 
 
 class ImageSearchTests(unittest.TestCase):
+    def test_demo_meat_mutton_has_binary_search_queries(self):
+        plan=build_search_plan('thịt cừu')
+        self.assertEqual({r['stage'] for r in plan},{'fresh','spoiled'})
+        self.assertEqual(plan[2]['query'],'mutton fresh food')
+
     def test_plan_covers_all_stages_and_translates_vietnamese_food(self):
         plan = build_search_plan('  Thịt bò  ')
         self.assertEqual(len(plan), 4)
