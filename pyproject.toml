@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "foodquality8"
+version = "0.1.0"
+description = "Reproducible, reviewed food dataset builder"
+requires-python = ">=3.10"
+dependencies = ["Pillow>=10", "numpy>=1.24", "openpyxl>=3.1", "requests>=2.32", "playwright>=1.50"]
+
+[project.optional-dependencies]
+notebook = ["jupyterlab>=4"]
+ai = ["torch>=2.6", "torchvision>=0.21", "ultralytics>=8.4", "scikit-learn>=1.6", "streamlit>=1.50", "PyYAML>=6"]
+
+[project.scripts]
+fq8 = "foodquality8.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["foodquality8*"]
