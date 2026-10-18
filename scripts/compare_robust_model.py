@@ -57,6 +57,7 @@ def main():
     p.add_argument('--base',type=Path,default=ROOT/'workspace/robust9_v1')
     p.add_argument('--original-base',type=Path,default=ROOT/'workspace/tomato_v3')
     p.add_argument('--output',type=Path,default=ROOT/'workspace/robust9_v1/comparison.json')
+    p.add_argument('--reference-manifest',type=Path,default=ROOT/'workspace/tomato_v3/split.json')
     args=p.parse_args();torch.set_num_threads(4)
     live=json.loads((ROOT/'models/consensus.json').read_text(encoding='utf8'))
     entries={'baseline':Path(live['quality_registry']),'candidate':args.candidate}
@@ -81,15 +82,26 @@ def main():
     truth=np.array([FOODS.index(r['food'])*2+int(r['condition']=='spoiled') for r in reference])
     masks={s:np.array([r['split']==s for r in reference]) for s in ('val','test')}
     masks['val_original']=np.array([r['split']=='val' and r.get('source')!='AgriFreshNET v1' for r in reference])
+    if args.reference_manifest.exists():
+        locked=json.loads(args.reference_manifest.read_text(encoding='utf8'))
+        locked_val={r['sha256'] for r in locked if r['split']=='val'}
+        current_val={r['sha256'] for r in reference if r['split']=='val'}
+        if not locked_val.issubset(current_val):raise ValueError('Locked validation images are missing or moved.')
+        masks['val_locked']=np.array([r['split']=='val' and r['sha256'] in locked_val for r in reference])
+        if current_val-locked_val:
+            masks['val_added']=np.array([r['split']=='val' and r['sha256'] not in locked_val for r in reference])
     for food in FOODS:
         masks['val_'+food]=np.array([r['split']=='val' and r['food']==food for r in reference])
     results={name:{key:metrics(truth[mask],pred[mask]) for key,mask in masks.items()} for name,pred in predictions.items()}
     passed=passes(results['baseline']['val'],results['candidate']['val'])
     passed=passed and results['candidate']['val_original']['macro_f1']>=results['baseline']['val_original']['macro_f1']-.005
+    if 'val_locked' in masks:
+        before=results['baseline']['val_locked'];after=results['candidate']['val_locked']
+        passed=passed and after['macro_f1']>=before['macro_f1']-.005 and after['food_accuracy']>=before['food_accuracy']
     output=dict(passed=passed,selection_split='val',metrics=results,
                 candidate_registry_sha256=hashlib.sha256(args.candidate.read_bytes()).hexdigest(),
                 baseline_registry_sha256=live['quality_registry_sha256'],
-                rule='Validation macro F1 improves, food accuracy and spoiled recall do not decline; original-source F1 regression <=0.5 percentage point.',
+                rule='Validation macro F1 improves, food accuracy and spoiled recall do not decline; original-source and locked validation F1 regression <=0.5 percentage point; locked food accuracy does not decline.',
                 limitation='Internal source-labelled data; transformed images are not new independent examples.')
     write_json(args.output,output)
     print(json.dumps(output,indent=2))

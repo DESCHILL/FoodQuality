@@ -29,7 +29,7 @@ def augment(image, seed):
     return image
 
 
-def build(rows, output):
+def build(rows, output, reuse=()):
     validate_rows(rows)
     verify_files(rows)
     if any(r.get('derived_from') for r in rows):
@@ -38,9 +38,10 @@ def build(rows, output):
     directory = output / 'images'
     directory.mkdir(parents=True, exist_ok=True)
     previous={}
-    if (output/'split.json').exists():
-        previous={r['derived_from']:r for r in json.loads((output/'split.json').read_text(encoding='utf8'))
-                  if r.get('augmentation')=='rotation-light-blur-v1' and r.get('derived_from')}
+    for directory in [*map(Path,reuse),output]:
+        if (directory/'split.json').exists():
+            previous.update({r['derived_from']:r for r in json.loads((directory/'split.json').read_text(encoding='utf8'))
+                             if r.get('augmentation')=='rotation-light-blur-v1' and r.get('derived_from')})
     result = [dict(r) for r in rows]
     for row in rows:
         if row['split'] != 'train':
@@ -86,8 +87,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--source', type=Path, default=ROOT/'workspace/tomato_v3/split.json')
     parser.add_argument('--output', type=Path, default=ROOT/'workspace/robust9_v1')
+    parser.add_argument('--reuse',type=Path,action='append',default=[])
     args = parser.parse_args()
-    print(json.dumps(build(json.loads(args.source.read_text(encoding='utf8')), args.output), indent=2))
+    print(json.dumps(build(json.loads(args.source.read_text(encoding='utf8')), args.output,args.reuse), indent=2))
 
 
 if __name__ == '__main__':

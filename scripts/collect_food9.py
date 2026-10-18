@@ -13,6 +13,12 @@ ROOT=Path(__file__).resolve().parents[1]
 FOODS=('Apple','Banana','Orange','Carrot','Cucumber','Tomato','Beef','Chicken','Mutton')
 
 def main():
+    import argparse,math
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--output',type=Path,default=ROOT/'food9_workspace')
+    parser.add_argument('--per-class',type=int,default=320)
+    args=parser.parse_args()
+    if args.per_class<40:raise ValueError('At least 40 images per class are required.')
     rows=json.loads((ROOT/'workspace/foodclass-index.json').read_text())
     source=json.loads((ROOT/'workspace/foodclass-files.json').read_text())[0]
     tasks=[]
@@ -20,11 +26,12 @@ def main():
         for condition in ('Fresh','Rotten'):
             members=sorted([r for r in rows if f'/{food}/{condition}/' in r['name'] and r['size']],key=lambda r:r['offset'])
             width=min(40,len(members))
-            starts=range(0,len(members),40) if len(members)<=1000 else [round(k*(len(members)-width)/7) for k in range(8)]
+            blocks=max(2,math.ceil(args.per_class/40))
+            starts=range(0,len(members),40) if len(members)<=max(1000,args.per_class) else [round(k*(len(members)-width)/(blocks-1)) for k in range(blocks)]
             for start in starts:
                 tasks.append((food.lower(),'fresh' if condition=='Fresh' else 'spoiled',members[start:start+width]))
-    base=ROOT/'food9_workspace'
-    base.mkdir(exist_ok=True)
+    base=args.output.resolve()
+    base.mkdir(parents=True,exist_ok=True)
     def fetch(task):
         food,condition,group=task
         folder=base/'images'/f'{food}_{condition}'
@@ -69,7 +76,7 @@ def main():
     (base/'source.json').write_text(json.dumps(dict(name='FoodClass V2',doi='10.17632/5fjkkv5xgt.2',
         url='https://data.mendeley.com/datasets/5fjkkv5xgt/2',license='CC-BY-4.0',
         attribution='Musarat Khan, Farhana Afrin, Afia Ebnath (2026). FoodClass. Mendeley Data V2.',
-        sampling='All images for classes <=1000 images; otherwise 8 evenly spaced blocks of 40; demo subset, not entire archive',
+        sampling=f'All images for classes <=max(1000,{args.per_class}); otherwise evenly spaced blocks of 40 toward target {args.per_class}; subset, not entire archive',
         integrity='ZIP CRC checked for every downloaded image; SHA256 saved per image; full archive not downloaded',
         images=len(result)),ensure_ascii=False,indent=2),encoding='utf8')
     print('Hoàn tất bộ ảnh 9 loại:',len(result),flush=True)

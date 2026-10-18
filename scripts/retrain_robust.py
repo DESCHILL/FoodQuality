@@ -12,12 +12,20 @@ from foodquality8.model_data import write_json
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--run',type=Path,required=True);args=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--run',type=Path,required=True)
+    p.add_argument('--dataset',type=Path,default=ROOT/'workspace/dataset-current.json')
+    args=p.parse_args()
     run=args.run.resolve();run.mkdir(parents=True,exist_ok=True)
     if (run/'classifier/best.pt').exists():raise ValueError('Choose a new run directory; checkpoints are immutable.')
     source=ROOT/'workspace/tomato_v3'
     if not (source/'split.json').exists():source=ROOT/'workspace/sic_merged'
     base=ROOT/'workspace/robust9_v1'
+    dataset={}
+    if args.dataset.exists():
+        dataset=json.loads(args.dataset.read_text(encoding='utf8'))
+        source=Path(dataset['source_base']);base=Path(dataset['training_base'])
+    reuse_training=[Path(v) for v in dataset.get('reuse_training',[])]
+    reuse_source=[Path(v) for v in dataset.get('reuse_source',[])]
     raw_quality=run/'quality-detail.json';quality=run/'quality.json';consensus=run/'consensus.json'
     comparison=run/'comparison.json';evaluation=run/'pipeline-validation.json'
     def state(**kw):write_json(run/'workflow.json',kw)
@@ -32,8 +40,12 @@ def main():
             state(status='failed',activated_new_models=False,message='Bước xử lý thất bại; giữ mô hình website, xem nhật ký.');return False
         return True
     state(status='running',message='Tạo biến thể ảnh, học hai vùng 320×320 và kiểm tra tự động.')
-    commands=[('build_robust_dataset.py','--source',source/'split.json','--output',base),
-              ('train_food9.py','--base',base,'--prepared','--detail-views','--run',run/'classifier','--registry',raw_quality),
+    augmentation_reuse=[item for path in reuse_training for item in ('--reuse',path)]
+    feature_reuse=[item for path in reuse_training for item in ('--reuse-features',path)]
+    legacy_reuse=[item for path in reuse_source for item in ('--reuse',path)]
+    commands=[('build_robust_dataset.py','--source',source/'split.json','--output',base,*augmentation_reuse),
+              ('cache_source_features.py','--base',source,*legacy_reuse),
+              ('train_food9.py','--base',base,'--prepared','--detail-views','--run',run/'classifier','--registry',raw_quality,*feature_reuse),
               ('fit_quality_ensemble.py','--candidate',raw_quality,'--base',base,'--original-base',source,
                '--output',quality,'--checkpoint',run/'classifier/ensemble.pt')]
     for command in commands:

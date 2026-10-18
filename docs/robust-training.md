@@ -6,6 +6,12 @@ Phạm vi gồm táo, chuối, cam, bò, gà, cừu, cà rốt, dưa chuột và
 
 Bản `robust9_v1` gồm 6.823 ảnh nguồn (FoodClass V2, AgML và AgriFreshNET) và 4.604 ảnh biến đổi từ tập train. Tổng cộng 11.427 ảnh: train 9.208, validation 1.098, test 1.121. Các ảnh biến đổi giữ nhãn, nguồn, mã nhóm và SHA256 ảnh cha; không được đi vào validation/test. Ảnh biến đổi không làm tăng số mẫu độc lập. Thịt cừu vẫn ít nhóm độc lập.
 
+Đợt mở rộng ngày 18/10/2026 có 16.244 ảnh nguồn: FoodClass V2 13.475, AgML 1.181 và AgriFreshNET 1.588. Thêm 11.159 biến thể train thành 27.403 ảnh, chia train 22.318, validation 2.597, test 2.488. Tập kiểm tra cũ giữ nguyên; ảnh mới được bổ sung vào các tập sau khi lọc trùng. Đây là dữ liệu chuẩn bị huấn luyện, không đồng nghĩa mô hình website đã được thay.
+
+AgriFreshNET bổ sung 957 ảnh đại diện chuối, cam, dưa chuột, loại 2.502 biến thể dư thừa và 45 ảnh gần trùng. Nguồn hiện tải được là Processed Data; các ảnh mới được chọn không có tiền tố tăng cường, nhưng không khẳng định đó là ảnh raw. Ngày chụp làm nhóm bảo thủ và giữ nguyên nhóm cũ. Không đổi nhãn semi-fresh thành fresh hoặc spoiled.
+
+Đợt FoodClass tải 16.300 tệp có kiểm tra CRC, giữ thêm 8.464 ảnh sau khi loại 6.210 ảnh trùng nguồn cũ, 1.584 ảnh dư trong nhóm gần trùng và 42 ảnh xung đột nhãn. Nhóm gần trùng được nối bắc cầu, không chỉ so sánh với ảnh đại diện. Mỗi nhóm mới giữ một ảnh. Gà và cừu không có mẫu bổ sung từ đợt này. Nhóm hash/ngày không chứng minh các vật thể vật lý độc lập; nhãn nguồn chưa được duyệt chuyên gia.
+
 Phép biến đổi gồm lật ngang, xoay nhẹ có mở rộng khung để giữ nguyên vật thể, điều chỉnh sáng nhỏ và mờ nhẹ. Không vẽ thêm mốc hoặc đổi màu để tạo nhãn hỏng. Phép xoay 2D không thay thế ảnh thật chụp mặt bên hay mặt sau.
 
 Google tự luân phiên truy vấn tươi/hỏng bằng tiếng Việt, tiếng Anh và các góc chụp/bối cảnh. Đây là nguồn ảnh ứng viên; từ khóa tìm kiếm không chứng minh trạng thái, quyền sử dụng hoặc độ chính xác nhãn. Không tự nhập ảnh Google chưa xác minh vào bộ nguồn có nhãn.
@@ -30,9 +36,22 @@ Chạy trực tiếp:
 
 Chọn thư mục run mới mỗi lần để không ghi đè checkpoint. Nút Ngừng tạo tệp STOP; tiến trình con dừng và không thay mô hình website.
 
+`workspace/dataset-current.json` chọn `source_base`, `training_base`, `reuse_source` và `reuse_training` cho nút huấn luyện. Không có cấu hình này thì dùng bộ cũ. Đặc trưng của encoder ImageNet cố định được tái sử dụng theo SHA256 ảnh và đúng công thức tiền xử lý; chỉ ảnh mới chạy lại encoder. Tệp tiến độ cho phép tiếp tục lần trích đặc trưng bị ngừng. Không chạy hai tác vụ ghi đặc trưng vào cùng một thư mục đồng thời.
+
+Các lệnh chuẩn bị đợt mở rộng:
+
+```powershell
+.venv\Scripts\python.exe -X utf8 scripts/expand_source_dataset.py --base workspace/tomato_v3 --output workspace/source9_v4
+.venv\Scripts\python.exe -X utf8 scripts/collect_food9.py --output workspace/foodclass-expanded --per-class 1000
+.venv\Scripts\python.exe -X utf8 scripts/import_foodclass_expansion.py --base workspace/source9_v4 --catalog workspace/foodclass-expanded/catalog.json --output workspace/source9_v5
+.venv\Scripts\python.exe -X utf8 scripts/build_robust_dataset.py --source workspace/source9_v5/split.json --output workspace/robust9_v3 --reuse workspace/robust9_v2
+```
+
 ## Kiểm tra và phát hành
 
 Ứng viên phải tăng macro F1 trên validation, không giảm nhận dạng loại và recall lớp hỏng; mức giảm F1 trên nguồn cũ tối đa 0,5 điểm phần trăm. Sau đó chạy toàn bộ validation qua ba bộ nhận diện và một tập phân tầng với ảnh xoay 22°, tối/mờ, che một góc. Ảnh che khuất chỉ chấm nhận dạng loại vì dấu hiệu hỏng có thể bị che.
+
+Khi mở rộng dữ liệu, kiểm tra thêm đúng tập validation 1.098 ảnh đã khóa: phải giữ đủ SHA256 ảnh, không giảm độ chính xác loại và không giảm macro F1 quá 0,5 điểm phần trăm. Báo cáo tách tập mới bổ sung khỏi tập cũ. Test từng được dùng trong phát triển nên vẫn là đánh giá nội bộ, chưa thay thế bộ ảnh thực tế độc lập.
 
 Chỉ cập nhật website khi cả hai kiểm tra đạt; không chỉ tăng tỷ lệ trả về “chưa rõ” để làm đẹp độ chính xác. Kiểm tra checksum checkpoint/cấu hình, lưu bản khôi phục rồi thay registry nguyên tử. Các số đo nội bộ không chứng minh độ chính xác ngoài thực tế hoặc an toàn ăn uống.
 
