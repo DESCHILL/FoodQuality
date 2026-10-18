@@ -35,12 +35,14 @@ def view_transform(recipe):
         crop_size=recipe['size'], resize_size=256 if recipe == LEGACY else 320)
 
 
-def extract_features(model, images, recipe):
+def extract_features(model, images, recipe, channels_last=False):
     from .food9 import visual_features
     transform = view_transform(recipe)
     views = [image_views(im, recipe) for im in images]
     with torch.inference_mode():
         batch = torch.stack([transform(view) for group in views for view in group])
+        if channels_last:
+            batch=batch.contiguous(memory_format=torch.channels_last)
         deep = model(batch).reshape(len(images), recipe['views'], -1).mean(1)
     # Keep the full original's colour distribution: padding is not food evidence.
     appearance = torch.from_numpy(np.stack([visual_features(im) for im in images]))
