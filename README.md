@@ -36,8 +36,11 @@ Các nhánh chức năng được kiểm thử trước khi merge vào `main`. B
 
 Xem [quy trình phát triển](docs/development.md), [thuật toán](docs/algorithms.md) và [kết quả đánh giá](docs/evaluation.md).
 
+Quy trình tự tạo biến thể ảnh, học hai vùng 320×320 và kiểm tra trước khi cập nhật website: [huấn luyện nhiều điều kiện](docs/robust-training.md).
+
 ## Nguồn
 
 - [FoodClass V2](https://data.mendeley.com/datasets/5fjkkv5xgt/2), CC BY 4.0.
 - [Fresh and Rotten Fruits](https://data.mendeley.com/datasets/bdd69gyhv8/1), CC BY 4.0, bản raw Project-AgML.
+- [AgriFreshNET V1](https://data.mendeley.com/datasets/42m5tb7yv9/1), CC BY 4.0; ảnh cà chua tươi/hỏng, giữ riêng các ngày chụp giữa các tập.
 - [SIC-Food-Handover](https://github.com/manhhuu13112005/SIC-Food-Handover), checkpoint dùng đối chiếu cục bộ. Giấy phép từng dataset/weight được quản lý riêng; repository không cấp lại quyền cho tài nguyên bên thứ ba.

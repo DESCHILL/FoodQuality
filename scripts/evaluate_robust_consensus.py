@@ -38,7 +38,9 @@ def summary(records):
 def passes(baseline,candidate):
     clean=all(candidate['clean'][k]>=baseline['clean'][k] for k in ('food_accuracy','accepted_accuracy','correct_and_accepted'))
     robust=all(candidate[k]['food_accuracy']>=baseline[k]['food_accuracy'] for k in ('rotation','dim_blur','occlusion'))
-    return clean and robust
+    quality=all(candidate[k][metric]>=baseline[k][metric]
+                for k in ('rotation','dim_blur') for metric in ('accepted_accuracy','correct_and_accepted'))
+    return clean and robust and quality
 
 
 def main():
@@ -49,6 +51,7 @@ def main():
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--split',choices=['val','test'],default='val')
     p.add_argument('--full-clean',action='store_true')
+    p.add_argument('--baseline-only',action='store_true')
     args=p.parse_args()
     rows=[r for r in json.loads(args.manifest.read_text(encoding='utf8')) if r['split']==args.split and not r.get('derived_from')]
     groups=defaultdict(list)
@@ -57,8 +60,18 @@ def main():
     for key in sorted(groups):
         items=sorted(groups[key],key=lambda r:r['sha256']);random.Random(314).shuffle(items);subset+=items[:5]
     results={};hashes={};started=time.perf_counter()
-    for name,path in [('baseline',args.baseline),('candidate',args.candidate)]:
+    entries=[('baseline',args.baseline)]
+    if not args.baseline_only:entries.append(('candidate',args.candidate))
+    manifest_hash=hashlib.sha256(args.manifest.read_bytes()).hexdigest()
+    for name,path in entries:
         hashes[name]=hashlib.sha256(path.read_bytes()).hexdigest()
+        cache_path=args.output.with_name(args.output.stem+'-'+name+'.json')
+        signature=dict(config_sha256=hashes[name],manifest_sha256=manifest_hash,
+                       split=args.split,full_clean=args.full_clean,transforms_version=1)
+        if cache_path.exists():
+            cached=json.loads(cache_path.read_text(encoding='utf8'))
+            if cached.get('signature')==signature:
+                results[name]=cached;print('Reused matching evaluation:',name,flush=True);continue
         model=ConsensusPredictor(path);records=[];metrics={}
         for kind in ('clean','rotation','dim_blur','occlusion'):
             selected=rows if kind=='clean' and args.full_clean else subset
@@ -71,8 +84,10 @@ def main():
             if kind=='occlusion':
                 # Occlusion can hide spoilage evidence; evaluate food identity only.
                 metrics[kind]={k:v for k,v in metrics[kind].items() if k in ('samples','food_accuracy')}
-        results[name]=dict(metrics=metrics,records=records)
-        write_json(args.output.with_name(args.output.stem+'-'+name+'.json'),results[name])
+        results[name]=dict(metrics=metrics,records=records,signature=signature)
+        write_json(cache_path,results[name])
+    if args.baseline_only:
+        print(json.dumps(results['baseline']['metrics'],indent=2),flush=True);return
     report=dict(passed=passes(results['baseline']['metrics'],results['candidate']['metrics']),
                 split=args.split,full_clean=args.full_clean,config_sha256=hashes,
                 manifest_sha256=hashlib.sha256(args.manifest.read_bytes()).hexdigest(),

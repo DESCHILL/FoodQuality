@@ -65,7 +65,8 @@ def main():
         if hashlib.sha256(Path(registry['weights']).read_bytes()).hexdigest()!=registry['sha256']:
             raise ValueError('Checkpoint checksum mismatch.')
         checkpoint=torch.load(registry['weights'],weights_only=True,map_location='cpu')
-        rows,x=load_features(args.original_base if name=='baseline' else args.base,checkpoint)
+        feature_base=(args.original_base if name=='baseline' and checkpoint.get('preprocessing',LEGACY)==LEGACY else args.base)
+        rows,x=load_features(feature_base,checkpoint)
         ids=[i for i,r in enumerate(rows) if r['split'] in ('val','test') and not r.get('derived_from')]
         selected=[rows[i] for i in ids]
         if reference is not None and [(r['sha256'],r['split']) for r in reference]!=[(r['sha256'],r['split']) for r in selected]:

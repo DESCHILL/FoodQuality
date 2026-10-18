@@ -74,6 +74,11 @@ def build(rows, output):
                   limitation='Derived images are not independent samples. Validation/test originals are unchanged. '
                              '2D rotation cannot synthesize unseen surfaces or verify freshness labels.')
     write_json(output/'data-report.json', report)
+    catalog=json.loads((ROOT/'config/robust9-sources.json').read_text(encoding='utf8'))
+    sources={name:catalog.get(name,{'license':'unverified','attribution':'Not supplied'})
+             for name in report['source_counts']}
+    write_json(output/'sources.json',dict(sources=sources,
+        modifications='Training derivatives: horizontal flip, expanded rotation, slight brightness change and blur. Source labels retained.'))
     return report
 
 

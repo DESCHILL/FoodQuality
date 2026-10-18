@@ -5,5 +5,5 @@
   "source": "https://data.mendeley.com/datasets/5fjkkv5xgt/2",
   "license": "CC-BY-4.0",
   "google_mode": "training_workflow_demonstration",
-  "default_website_model": "models/food9.json"
+  "default_website_model": "models/consensus.json"
 }

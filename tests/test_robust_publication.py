@@ -11,9 +11,13 @@ from scripts.evaluate_robust_consensus import passes
 class RobustPublicationTests(unittest.TestCase):
     def test_high_accuracy_cannot_hide_lower_coverage(self):
         baseline={'clean':dict(food_accuracy=.9,accepted_accuracy=.95,correct_and_accepted=.8)}
-        for kind in ('rotation','dim_blur','occlusion'):baseline[kind]=dict(food_accuracy=.8)
+        for kind in ('rotation','dim_blur','occlusion'):
+            baseline[kind]=dict(food_accuracy=.8,accepted_accuracy=.9,correct_and_accepted=.7)
         candidate={k:dict(v) for k,v in baseline.items()}
         candidate['clean'].update(accepted_accuracy=1.,correct_and_accepted=.2)
+        self.assertFalse(passes(baseline,candidate))
+        candidate={k:dict(v) for k,v in baseline.items()}
+        candidate['dim_blur']['accepted_accuracy']=.85
         self.assertFalse(passes(baseline,candidate))
 
     def test_only_matching_validation_bundle_can_replace_active(self):

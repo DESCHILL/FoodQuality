@@ -1,0 +1,19 @@
+{
+  "FoodClass V2": {
+    "url": "https://data.mendeley.com/datasets/5fjkkv5xgt/2",
+    "license": "CC-BY-4.0",
+    "attribution": "Musarat Khan, Farhana Afrin, Afia Ebnath (2026). FoodClass, version 2. DOI: 10.17632/5fjkkv5xgt.2"
+  },
+  "AgML raw / bdd69gyhv8.1": {
+    "url": "https://data.mendeley.com/datasets/bdd69gyhv8/1",
+    "license": "CC-BY-4.0",
+    "attribution": "Sultana, Nusrat; Jahan, Musfika; Uddin, Mohammad Shorif (2022). DOI: 10.17632/bdd69gyhv8.1",
+    "mirror": "Project-AgML/fresh_rotten_fruit_classification",
+    "revision": "65d4488931fef98c76bf996180064397fbe7da34"
+  },
+  "AgriFreshNET v1": {
+    "url": "https://data.mendeley.com/datasets/42m5tb7yv9/1",
+    "license": "CC-BY-4.0",
+    "attribution": "Fouzia Risdin, Hafsha Salauddin, Tasniya aziza tufa, Md Jakir Hossain (2026). AgriFreshNET Freshness and Shelf-Life Image Dataset. DOI: 10.17632/42m5tb7yv9.1"
+  }
+}
