@@ -59,6 +59,9 @@ class RobustDatasetTests(unittest.TestCase):
             self.assertEqual(report['derived_images'],18)
             self.assertEqual([r for r in result if r['split']!='train'],[r for r in rows if r['split']!='train'])
             self.assertEqual(report,build(rows,root/'derived'))
+            from unittest.mock import patch
+            with patch('scripts.build_robust_dataset.augment',side_effect=AssertionError('Reuse existing derivatives')):
+                self.assertEqual(report,build(rows,root/'reused',[root/'derived']))
             result[-1]['split']='val'
             with self.assertRaises(ValueError):validate_rows(result)
 

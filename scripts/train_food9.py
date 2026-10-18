@@ -79,37 +79,22 @@ def main():
     parser.add_argument('--minimum-spoiled-recall',type=float,default=0.)
     parser.add_argument('--detail-views',action='store_true',help='Two views at 320 pixels; recipe is stored in the checkpoint.')
     parser.add_argument('--learning-rate',type=float,default=.003)
+    parser.add_argument('--reuse-features',type=Path,action='append',default=[])
     args=parser.parse_args()
+    if (args.run/'best.pt').exists():
+        raise ValueError('Chọn thư mục huấn luyện mới; không ghi đè checkpoint đã lưu.')
     base=args.base
     rows=json.loads((base/'split.json').read_text(encoding='utf8')) if args.prepared else prepare(base)
     from foodquality8.source_dataset import validate_rows,verify_files
     validate_rows(rows)
     verify_files(rows)
     print('Ảnh huấn luyện/đánh giá:',len(rows),Counter(r['split'] for r in rows),flush=True)
-    from foodquality8.robust_views import DETAIL,LEGACY,extract_features,feature_signature
+    from foodquality8.robust_views import DETAIL,LEGACY
+    from foodquality8.feature_cache import ensure_features
     recipe=DETAIL if args.detail_views else LEGACY
     model,transform=encoder()
-    cache=base/'features.npz'
-    signature=feature_signature(rows,recipe)
-    signatures={signature}
-    if not args.detail_views:
-        signatures.add(hashlib.sha256(json.dumps([(r['sha256'],r['split']) for r in rows]).encode()).hexdigest())
-    if cache.exists() and str(np.load(cache)['signature']) in signatures:
-        features=np.load(cache)['features']
-    else:
-        chunks=[]
-        with torch.inference_mode():
-            batch_size=8 if args.detail_views else 32
-            for start in range(0,len(rows),batch_size):
-                images=[];extra=[]
-                for row in rows[start:start+batch_size]:
-                    with Image.open(row['path']) as source:
-                        im=ImageOps.exif_transpose(source).convert('RGB')
-                        images.append(im.copy())
-                chunks.append(extract_features(model,images,recipe).numpy())
-                if start%320==0: print(f'Trích đặc trưng {start}/{len(rows)}',flush=True)
-        features=np.concatenate(chunks)
-        np.savez_compressed(cache,features=features,signature=signature)
+    features=ensure_features(base,rows,model,recipe,reuse=args.reuse_features,
+                             log=lambda message:print(message,flush=True))
     masks={s:np.array([r['split']==s for r in rows]) for s in ('train','val','test')}
     mean=features[masks['train']].mean(0);std=np.maximum(features[masks['train']].std(0),.05)
     x=torch.from_numpy(np.clip((features-mean)/std,-8,8))
