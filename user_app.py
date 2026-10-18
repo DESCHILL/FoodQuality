@@ -143,7 +143,10 @@ with right:
                         prefix='Có thể là ' if row.get('tentative') else ''
                         st.markdown(f"**{i}. {prefix}{FOODS.get(row['food'],row['food'])}**")
                         st.write(CONDITIONS.get(row['condition'],row['condition']))
-                        st.caption(f"Điểm nhận diện: {row['detection_score']:.1%} · Điểm phân loại: {row['quality_score']:.1%}")
+                        if row['condition']=='unknown':
+                            st.caption(f"Điểm nhận diện: {row['detection_score']:.1%}")
+                        else:
+                            st.caption(f"Điểm nhận diện: {row['detection_score']:.1%} · Điểm phân loại: {row['quality_score']:.1%}")
                         if row.get('prediction_source'): st.caption(row['prediction_source'])
                         if row.get('source_scores'):
                             with st.expander('Kết quả cả 3 bộ nhận diện',expanded=True):
