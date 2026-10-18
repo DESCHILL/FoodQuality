@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import numpy as np
+import torch
 from PIL import Image,ImageOps
 from .robust_views import LEGACY,feature_signature,extract_features
 
@@ -52,12 +53,13 @@ def ensure_features(base,rows,model,recipe,reuse=(),log=print):
                 for i in lookup.get(row['sha256'],[]):
                     if not ready[i]:values[i]=source[j];ready[i]=True
     missing=np.flatnonzero(~ready);log(f'Đặc trưng có sẵn: {int(ready.sum())}/{len(rows)}; cần xử lý thêm {len(missing)} ảnh.')
+    if isinstance(model,torch.nn.Module):model.to(memory_format=torch.channels_last)
     batch=8 if recipe['views']==2 else 32
     for offset in range(0,len(missing),batch):
         ids=missing[offset:offset+batch];images=[]
         for i in ids:
             with Image.open(rows[i]['path']) as image:images.append(ImageOps.exif_transpose(image).convert('RGB'))
-        values[ids]=extract_features(model,images,recipe).numpy();ready[ids]=True
+        values[ids]=extract_features(model,images,recipe,channels_last=True).numpy();ready[ids]=True
         if offset%320==0:
             atomic_cache(progress,features=values,ready=ready,signature=signature)
             log(f'Trích thêm {min(offset+batch,len(missing))}/{len(missing)} ảnh.')

@@ -38,6 +38,8 @@ class RobustDatasetTests(unittest.TestCase):
         features=extract_features(Encoder(),images,DETAIL)
         self.assertEqual(tuple(features.shape),(2,54))
         self.assertTrue(torch.isfinite(features).all())
+        fast=extract_features(Encoder(),images,DETAIL,channels_last=True)
+        self.assertTrue(torch.allclose(features,fast,atol=1e-5,rtol=1e-5))
         rows=[dict(sha256='a',split='train')]
         self.assertNotEqual(feature_signature(rows,DETAIL),feature_signature(rows,LEGACY))
 
