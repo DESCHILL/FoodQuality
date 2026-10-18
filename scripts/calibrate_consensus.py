@@ -38,7 +38,6 @@ def main():
     y=torch.tensor([FOODS.index(rows[i]['food']) for i in ids]);q=torch.tensor([int(rows[i]['condition']=='spoiled') for i in ids])
     normalized=((x-ck['mean'])/ck['std']).clamp(-8,8)
     fl=normalized@ck['food_head']['weight'].T+ck['food_head']['bias']
-    ql=(normalized@ck['quality_head']['weight'].T+ck['quality_head']['bias']).reshape(-1,9,2)[torch.arange(len(ids)),y]
     sicpath=ROOT/'models/sic/condition.pth';sic=torch.load(sicpath,weights_only=True,map_location='cpu')
     legacy_rows=json.loads((args.legacy_base/'split.json').read_text(encoding='utf8'))
     legacy_indices={r['sha256']:i for i,r in enumerate(legacy_rows) if r['split']=='val'}
@@ -46,8 +45,10 @@ def main():
     legacy_expected=hashlib.sha256(json.dumps([(r['sha256'],r['split']) for r in legacy_rows]).encode()).hexdigest()
     if str(legacy_cache['signature']) not in (legacy_expected,feature_signature(legacy_rows,LEGACY)):
         raise ValueError('SIC requires original 224-pixel validation features.')
-    sx=torch.from_numpy(legacy_cache['features'][[legacy_indices[rows[i]['sha256']] for i in ids],:1280])
-    sl=sx@sic['model_state_dict']['classifier.1.weight'].T+sic['model_state_dict']['classifier.1.bias']
+    sx=torch.from_numpy(legacy_cache['features'][[legacy_indices[rows[i]['sha256']] for i in ids]])
+    from foodquality8.quality_ensemble import condition_logits
+    ql=condition_logits(ck,x,sx)[torch.arange(len(ids)),y]
+    sl=sx[:,:1280]@sic['model_state_dict']['classifier.1.weight'].T+sic['model_state_dict']['classifier.1.bias']
     names=sic['class_names'];foods=sorted({n.split('__')[0] for n in names})
     sfl=torch.stack([sl[:,[i for i,n in enumerate(names) if n.split('__')[0]==f]].logsumexp(1) for f in foods],1)
     valid=[j for j,i in enumerate(ids) if rows[i]['food'] in foods]

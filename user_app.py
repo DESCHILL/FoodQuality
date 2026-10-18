@@ -116,7 +116,7 @@ with right:
                 if fusion_mode: implementation_bytes+=(ROOT/'foodquality8/fusion.py').read_bytes()
                 if consensus_mode: implementation_bytes+=(ROOT/'foodquality8/consensus.py').read_bytes()
                 if food9_mode or fusion_mode or consensus_mode:
-                    implementation_bytes+=(ROOT/'foodquality8/food9.py').read_bytes()+(ROOT/'foodquality8/robust_views.py').read_bytes()
+                    implementation_bytes+=(ROOT/'foodquality8/food9.py').read_bytes()+(ROOT/'foodquality8/robust_views.py').read_bytes()+(ROOT/'foodquality8/quality_ensemble.py').read_bytes()
                 implementation=hashlib.sha256(implementation_bytes).hexdigest()
                 request_key=hashlib.sha256(uploaded.getvalue()).hexdigest()+fingerprint+implementation
                 fresh_result=st.session_state.get('analysis_key')!=request_key

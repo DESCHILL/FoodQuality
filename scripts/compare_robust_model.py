@@ -15,11 +15,12 @@ from foodquality8.robust_views import LEGACY,feature_signature
 from foodquality8.model_data import write_json
 
 
-def predict_heads(checkpoint,features):
+def predict_heads(checkpoint,features,legacy_features=None):
     x=((torch.as_tensor(features)-checkpoint['mean'])/checkpoint['std']).clamp(-8,8)
     with torch.inference_mode():
         food=(x@checkpoint['food_head']['weight'].T+checkpoint['food_head']['bias']).argmax(1)
-        logits=(x@checkpoint['quality_head']['weight'].T+checkpoint['quality_head']['bias']).reshape(-1,9,2)
+        from foodquality8.quality_ensemble import condition_logits
+        logits=condition_logits(checkpoint,torch.as_tensor(features),None if legacy_features is None else torch.as_tensor(legacy_features))
         quality=logits[torch.arange(len(x)),food].argmax(1)
     return (food*2+quality).numpy()
 
@@ -71,7 +72,12 @@ def main():
         selected=[rows[i] for i in ids]
         if reference is not None and [(r['sha256'],r['split']) for r in reference]!=[(r['sha256'],r['split']) for r in selected]:
             raise ValueError('Baseline and candidate holdouts differ.')
-        reference=selected;predictions[name]=predict_heads(checkpoint,x[ids])
+        legacy_features=None
+        if checkpoint.get('legacy_quality'):
+            legacy_rows,legacy_x=load_features(args.original_base,{'preprocessing':LEGACY})
+            lookup={r['sha256']:i for i,r in enumerate(legacy_rows)}
+            legacy_features=legacy_x[[lookup[r['sha256']] for r in selected]]
+        reference=selected;predictions[name]=predict_heads(checkpoint,x[ids],legacy_features)
     truth=np.array([FOODS.index(r['food'])*2+int(r['condition']=='spoiled') for r in reference])
     masks={s:np.array([r['split']==s for r in reference]) for s in ('val','test')}
     masks['val_original']=np.array([r['split']=='val' and r.get('source')!='AgriFreshNET v1' for r in reference])

@@ -68,7 +68,12 @@ class Food9Predictor:
             x=((raw-self.data['mean'])/self.data['std']).clamp(-8,8).unsqueeze(0)
             food_prob=self.food(x).softmax(1)[0]
             i=int(food_prob.argmax())
-            condition_prob=self.quality(x).reshape(-1,len(FOODS),2)[0,i].softmax(0)
+            from .quality_ensemble import condition_logits
+            legacy_raw=None
+            if self.data.get('legacy_quality'):
+                from .robust_views import LEGACY
+                legacy_raw=extract_features(self.encoder,[im],LEGACY)
+            condition_prob=condition_logits(self.data,raw[None],legacy_raw)[0,i].softmax(0)
         food=FOODS[i]
         score=float(food_prob[i])
         quality_score=float(condition_prob.max())

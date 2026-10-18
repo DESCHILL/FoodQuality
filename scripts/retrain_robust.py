@@ -18,7 +18,7 @@ def main():
     source=ROOT/'workspace/tomato_v3'
     if not (source/'split.json').exists():source=ROOT/'workspace/sic_merged'
     base=ROOT/'workspace/robust9_v1'
-    quality=run/'quality.json';consensus=run/'consensus.json'
+    raw_quality=run/'quality-detail.json';quality=run/'quality.json';consensus=run/'consensus.json'
     comparison=run/'comparison.json';evaluation=run/'pipeline-validation.json'
     def state(**kw):write_json(run/'workflow.json',kw)
     def execute(script,*arguments):
@@ -33,10 +33,14 @@ def main():
         return True
     state(status='running',message='Tạo biến thể ảnh, học hai vùng 320×320 và kiểm tra tự động.')
     commands=[('build_robust_dataset.py','--source',source/'split.json','--output',base),
-              ('train_food9.py','--base',base,'--prepared','--detail-views','--run',run/'classifier','--registry',quality),
-              ('compare_robust_model.py','--candidate',quality,'--base',base,'--original-base',source,'--output',comparison)]
+              ('train_food9.py','--base',base,'--prepared','--detail-views','--run',run/'classifier','--registry',raw_quality),
+              ('fit_quality_ensemble.py','--candidate',raw_quality,'--base',base,'--original-base',source,
+               '--output',quality,'--checkpoint',run/'classifier/ensemble.pt')]
     for command in commands:
         if not execute(*command):return
+    if not quality.exists():
+        state(status='complete',activated_new_models=False,message='Đã học xong; chưa có bản cải thiện mà giữ được recall ảnh hỏng, giữ mô hình website.');return
+    if not execute('compare_robust_model.py','--candidate',quality,'--base',base,'--original-base',source,'--output',comparison):return
     if not json.loads(comparison.read_text(encoding='utf8'))['passed']:
         state(status='complete',activated_new_models=False,message='Đã học xong; bản mới chưa vượt kiểm tra phân loại, giữ mô hình website.');return
     commands=[('calibrate_consensus.py','--base',base,'--legacy-base',source,'--quality-registry',quality,'--output',consensus),

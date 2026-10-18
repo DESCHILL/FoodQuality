@@ -16,6 +16,8 @@ Bộ FoodQuality mới dùng hai vùng 320×320: toàn ảnh giữ tỷ lệ và
 
 SIC EfficientNet vẫn dùng 224×224 và SIC YOLO dùng 640, đúng cấu hình của các checkpoint có sẵn. Không đổi kích thước các mô hình này rồi tiếp tục dùng điểm hiệu chỉnh cũ. Tăng độ phân giải đầu vào không phục hồi chi tiết đã mất trong ảnh nhỏ hoặc mờ.
 
+Trạng thái thực phẩm có thể kết hợp hai đầu phân loại cũ/mới, với một trọng số chung chọn trên validation để giữ recall lớp hỏng. Đầu cũ sử dụng đặc trưng 224 đã có từ bộ SIC; không chạy lại encoder trong luồng ba bộ nhận diện. Nhận dạng loại vẫn dùng hai vùng 320; đây không phải thêm một bộ nhận diện thứ tư. Mọi đầu phân loại và trọng số kết hợp được lưu trong checkpoint.
+
 ## Chạy
 
 Trong giao diện, chọn **Dataset kết hợp SIC** và bấm **HUẤN LUYỆN AI**. Quy trình tự tạo dữ liệu, trích đặc trưng, học, so sánh, hiệu chỉnh điểm và kiểm tra luồng ba bộ nhận diện. Giữ detector SIC đã huấn luyện. Không thêm nút thao tác.
