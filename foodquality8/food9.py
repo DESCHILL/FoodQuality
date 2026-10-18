@@ -50,6 +50,8 @@ class Food9Predictor:
         self.encoder.load_state_dict(self.data['encoder'])
         self.encoder.eval()
         self.transform=EfficientNet_B0_Weights.DEFAULT.transforms()
+        from .robust_views import LEGACY,validate_recipe
+        self.preprocessing=validate_recipe(self.data.get('preprocessing',LEGACY))
         dim=len(self.data['mean'])
         self.food=torch.nn.Linear(dim,len(FOODS))
         self.quality=torch.nn.Linear(dim,len(FOODS)*2)
@@ -61,12 +63,17 @@ class Food9Predictor:
         import torch
         im=ImageOps.exif_transpose(image).convert('RGB')
         with torch.inference_mode():
-            deep=self.encoder(self.transform(im).unsqueeze(0))[0]
-            raw=torch.cat([deep,torch.from_numpy(visual_features(im))])
+            from .robust_views import extract_features
+            raw=extract_features(self.encoder,[im],self.preprocessing)[0]
             x=((raw-self.data['mean'])/self.data['std']).clamp(-8,8).unsqueeze(0)
             food_prob=self.food(x).softmax(1)[0]
             i=int(food_prob.argmax())
-            condition_prob=self.quality(x).reshape(-1,len(FOODS),2)[0,i].softmax(0)
+            from .quality_ensemble import condition_logits
+            legacy_raw=None
+            if self.data.get('legacy_quality'):
+                from .robust_views import LEGACY
+                legacy_raw=extract_features(self.encoder,[im],LEGACY)
+            condition_prob=condition_logits(self.data,raw[None],legacy_raw)[0,i].softmax(0)
         food=FOODS[i]
         score=float(food_prob[i])
         quality_score=float(condition_prob.max())

@@ -77,28 +77,36 @@ def main():
     parser.add_argument('--registry',type=Path,default=ROOT/'models/food9.json')
     parser.add_argument('--spoiled-weight',type=float,default=1.)
     parser.add_argument('--minimum-spoiled-recall',type=float,default=0.)
+    parser.add_argument('--detail-views',action='store_true',help='Two views at 320 pixels; recipe is stored in the checkpoint.')
+    parser.add_argument('--learning-rate',type=float,default=.003)
     args=parser.parse_args()
     base=args.base
     rows=json.loads((base/'split.json').read_text(encoding='utf8')) if args.prepared else prepare(base)
-    from foodquality8.source_dataset import validate_rows
+    from foodquality8.source_dataset import validate_rows,verify_files
     validate_rows(rows)
-    print('Ảnh độc lập sau lọc:',len(rows),Counter(r['split'] for r in rows),flush=True)
+    verify_files(rows)
+    print('Ảnh huấn luyện/đánh giá:',len(rows),Counter(r['split'] for r in rows),flush=True)
+    from foodquality8.robust_views import DETAIL,LEGACY,extract_features,feature_signature
+    recipe=DETAIL if args.detail_views else LEGACY
     model,transform=encoder()
     cache=base/'features.npz'
-    signature=hashlib.sha256(json.dumps([(r['sha256'],r['split']) for r in rows]).encode()).hexdigest()
-    if cache.exists() and str(np.load(cache)['signature'])==signature:
+    signature=feature_signature(rows,recipe)
+    signatures={signature}
+    if not args.detail_views:
+        signatures.add(hashlib.sha256(json.dumps([(r['sha256'],r['split']) for r in rows]).encode()).hexdigest())
+    if cache.exists() and str(np.load(cache)['signature']) in signatures:
         features=np.load(cache)['features']
     else:
         chunks=[]
         with torch.inference_mode():
-            for start in range(0,len(rows),32):
+            batch_size=8 if args.detail_views else 32
+            for start in range(0,len(rows),batch_size):
                 images=[];extra=[]
-                for row in rows[start:start+32]:
+                for row in rows[start:start+batch_size]:
                     with Image.open(row['path']) as source:
                         im=ImageOps.exif_transpose(source).convert('RGB')
-                        images.append(transform(im));extra.append(visual_features(im))
-                deep=model(torch.stack(images)).numpy()
-                chunks.append(np.concatenate([deep,np.stack(extra)],axis=1))
+                        images.append(im.copy())
+                chunks.append(extract_features(model,images,recipe).numpy())
                 if start%320==0: print(f'Trích đặc trưng {start}/{len(rows)}',flush=True)
         features=np.concatenate(chunks)
         np.savez_compressed(cache,features=features,signature=signature)
@@ -109,7 +117,7 @@ def main():
     q=torch.tensor([int(r['condition']=='spoiled') for r in rows])
     torch.manual_seed(42)
     food=torch.nn.Linear(x.shape[1],len(FOODS));quality=torch.nn.Linear(x.shape[1],len(FOODS)*2)
-    optimizer=torch.optim.AdamW(list(food.parameters())+list(quality.parameters()),lr=.003,weight_decay=.01)
+    optimizer=torch.optim.AdamW(list(food.parameters())+list(quality.parameters()),lr=args.learning_rate,weight_decay=.01)
     indices={s:torch.from_numpy(np.flatnonzero(masks[s])) for s in masks}
     def metrics(split):
         ids=indices[split]
@@ -144,11 +152,13 @@ def main():
         if val['joint_macro_f1']>best+1e-5 and val['spoiled_recall']>=args.minimum_spoiled_recall:
             best=val['joint_macro_f1'];stale=0
             torch.save(dict(encoder=model.state_dict(),food_head=food.state_dict(),quality_head=quality.state_dict(),
-                mean=torch.from_numpy(mean),std=torch.from_numpy(std),foods=FOODS,recipe='efficientnet_features_plus_hsv_two_heads_v1'),run/'best.pt')
+                mean=torch.from_numpy(mean),std=torch.from_numpy(std),foods=FOODS,
+                preprocessing=recipe,recipe='efficientnet_features_plus_hsv_two_heads_v1'),run/'best.pt')
             write_json(run/'validation.json',val)
         else: stale+=1
-        if epoch%5==0: print('Vòng',epoch+1,'F1 kiểm tra',round(val['joint_macro_f1'],4),flush=True)
+        if epoch%5==0: print('Vòng',epoch+1,'F1 kiểm tra',round(val['joint_macro_f1'],4),'Recall hỏng',round(val['spoiled_recall'],4),flush=True)
         if stale>=20 and best>=0: break
+    write_json(run/'history.json',history)
     if best<0:raise ValueError('No checkpoint met the validation recall requirement.')
     saved=torch.load(run/'best.pt',map_location='cpu',weights_only=True)
     food.load_state_dict(saved['food_head']);quality.load_state_dict(saved['quality_head'])

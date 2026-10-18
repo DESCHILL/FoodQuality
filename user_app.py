@@ -115,6 +115,8 @@ with right:
                 implementation_bytes=(ROOT/'foodquality8'/('food9.py' if food9_mode else 'inference.py')).read_bytes()
                 if fusion_mode: implementation_bytes+=(ROOT/'foodquality8/fusion.py').read_bytes()
                 if consensus_mode: implementation_bytes+=(ROOT/'foodquality8/consensus.py').read_bytes()
+                if food9_mode or fusion_mode or consensus_mode:
+                    implementation_bytes+=(ROOT/'foodquality8/food9.py').read_bytes()+(ROOT/'foodquality8/robust_views.py').read_bytes()+(ROOT/'foodquality8/quality_ensemble.py').read_bytes()
                 implementation=hashlib.sha256(implementation_bytes).hexdigest()
                 request_key=hashlib.sha256(uploaded.getvalue()).hexdigest()+fingerprint+implementation
                 fresh_result=st.session_state.get('analysis_key')!=request_key
@@ -141,7 +143,10 @@ with right:
                         prefix='Có thể là ' if row.get('tentative') else ''
                         st.markdown(f"**{i}. {prefix}{FOODS.get(row['food'],row['food'])}**")
                         st.write(CONDITIONS.get(row['condition'],row['condition']))
-                        st.caption(f"Điểm nhận diện: {row['detection_score']:.1%} · Điểm phân loại: {row['quality_score']:.1%}")
+                        if row['condition']=='unknown':
+                            st.caption(f"Điểm nhận diện: {row['detection_score']:.1%}")
+                        else:
+                            st.caption(f"Điểm nhận diện: {row['detection_score']:.1%} · Điểm phân loại: {row['quality_score']:.1%}")
                         if row.get('prediction_source'): st.caption(row['prediction_source'])
                         if row.get('source_scores'):
                             with st.expander('Kết quả cả 3 bộ nhận diện',expanded=True):

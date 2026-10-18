@@ -15,19 +15,40 @@ def temperature(logits,target):
     return float(np.exp(fit.x))
 
 def main():
+    import argparse
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--base',type=Path,default=ROOT/'workspace/sic_merged')
+    parser.add_argument('--legacy-base',type=Path,default=ROOT/'workspace/sic_merged')
+    parser.add_argument('--quality-registry',type=Path)
+    parser.add_argument('--output',type=Path,default=ROOT/'models/consensus-candidate.json')
+    args=parser.parse_args()
     torch.set_num_threads(4)
     registry=json.loads((ROOT/'models/fusion.json').read_text(encoding='utf8'))
-    qp=Path(registry['quality_registry']);qreg=json.loads(qp.read_text(encoding='utf8'))
+    qp=(args.quality_registry or Path(registry['quality_registry'])).resolve();qreg=json.loads(qp.read_text(encoding='utf8'))
     ck=torch.load(qreg['weights'],weights_only=True,map_location='cpu')
-    rows=json.loads((ROOT/'workspace/sic_merged/split.json').read_text(encoding='utf8'))
+    rows=json.loads((args.base/'split.json').read_text(encoding='utf8'))
     ids=[i for i,r in enumerate(rows) if r['split']=='val']
-    x=torch.from_numpy(np.load(ROOT/'workspace/sic_merged/features.npz')['features'][ids])
+    from foodquality8.robust_views import LEGACY,feature_signature
+    cache=np.load(args.base/'features.npz')
+    expected=feature_signature(rows,ck.get('preprocessing',LEGACY))
+    legacy_signature=hashlib.sha256(json.dumps([(r['sha256'],r['split']) for r in rows]).encode()).hexdigest()
+    if str(cache['signature'])!=expected and not (ck.get('preprocessing',LEGACY)==LEGACY and str(cache['signature'])==legacy_signature):
+        raise ValueError('Feature cache does not match checkpoint preprocessing or dataset.')
+    x=torch.from_numpy(cache['features'][ids])
     y=torch.tensor([FOODS.index(rows[i]['food']) for i in ids]);q=torch.tensor([int(rows[i]['condition']=='spoiled') for i in ids])
     normalized=((x-ck['mean'])/ck['std']).clamp(-8,8)
     fl=normalized@ck['food_head']['weight'].T+ck['food_head']['bias']
-    ql=(normalized@ck['quality_head']['weight'].T+ck['quality_head']['bias']).reshape(-1,9,2)[torch.arange(len(ids)),y]
     sicpath=ROOT/'models/sic/condition.pth';sic=torch.load(sicpath,weights_only=True,map_location='cpu')
-    sl=x[:,:1280]@sic['model_state_dict']['classifier.1.weight'].T+sic['model_state_dict']['classifier.1.bias']
+    legacy_rows=json.loads((args.legacy_base/'split.json').read_text(encoding='utf8'))
+    legacy_indices={r['sha256']:i for i,r in enumerate(legacy_rows) if r['split']=='val'}
+    legacy_cache=np.load(args.legacy_base/'features.npz')
+    legacy_expected=hashlib.sha256(json.dumps([(r['sha256'],r['split']) for r in legacy_rows]).encode()).hexdigest()
+    if str(legacy_cache['signature']) not in (legacy_expected,feature_signature(legacy_rows,LEGACY)):
+        raise ValueError('SIC requires original 224-pixel validation features.')
+    sx=torch.from_numpy(legacy_cache['features'][[legacy_indices[rows[i]['sha256']] for i in ids]])
+    from foodquality8.quality_ensemble import condition_logits
+    ql=condition_logits(ck,x,sx)[torch.arange(len(ids)),y]
+    sl=sx[:,:1280]@sic['model_state_dict']['classifier.1.weight'].T+sic['model_state_dict']['classifier.1.bias']
     names=sic['class_names'];foods=sorted({n.split('__')[0] for n in names})
     sfl=torch.stack([sl[:,[i for i,n in enumerate(names) if n.split('__')[0]==f]].logsumexp(1) for f in foods],1)
     valid=[j for j,i in enumerate(ids) if rows[i]['food'] in foods]
@@ -57,7 +78,9 @@ def main():
         calibration=calibration,foods=FOODS,quality_threshold=.8)
     for key in ('quality_registry','sic_classifier','detector'):
         config[key+'_sha256']=hashlib.sha256(Path(config[key]).read_bytes()).hexdigest()
-    write_json(ROOT/'models/consensus-candidate.json',config)
+    config['preprocessing']=ck.get('preprocessing',LEGACY)
+    config['validation_manifest_sha256']=hashlib.sha256((args.base/'split.json').read_bytes()).hexdigest()
+    write_json(args.output,config)
     print(json.dumps(calibration,indent=2),flush=True)
 
 if __name__=='__main__':main()

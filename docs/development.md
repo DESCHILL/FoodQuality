@@ -3,11 +3,11 @@
 | Branch | Scope |
 |---|---|
 | main | Integrated code after tests |
-| codex/core | Dataset contracts, desktop and web foundations |
-| codex/dataset-google | Google collection, query stages, Excel export |
-| codex/train-yolo | Detection training and bounding-box validation |
-| codex/train-quality | Quality training, source expansion, model comparisons |
-| codex/inference-consensus | Three-source recognition and quality abstention |
+| demo/core | Dataset contracts, desktop and web foundations |
+| demo/dataset-google | Google collection, query stages, Excel export |
+| demo/train-yolo | Detection training and bounding-box validation |
+| demo/train-quality | Quality training, source expansion, model comparisons |
+| demo/inference-consensus | Three-source recognition and quality abstention |
 | codex/tests-ci | Unit/integration tests and CI |
 
 The branches contain complete project snapshots. Runtime modules stay together so changes can be tested before merging; branches are not separate partial applications. Use merge commits to retain feature history. Avoid committing images, checkpoints, credentials, local model registries and runtime logs.

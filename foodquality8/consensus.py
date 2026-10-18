@@ -40,11 +40,16 @@ class ConsensusPredictor:
         calibration=self.config['calibration']
         with torch.inference_mode():
             deep=self.base.encoder(self.base.transform(im).unsqueeze(0))[0]
-            x=((torch.cat([deep,torch.from_numpy(visual_features(im))])-self.base.data['mean'])/self.base.data['std']).clamp(-8,8)[None]
+            from .robust_views import LEGACY,extract_features
+            raw=(torch.cat([deep,torch.from_numpy(visual_features(im))]) if self.base.preprocessing==LEGACY
+                 else extract_features(self.base.encoder,[im],self.base.preprocessing)[0])
+            x=((raw-self.base.data['mean'])/self.base.data['std']).clamp(-8,8)[None]
             fq_logits=self.base.food(x)[0]
             fq_prob=(fq_logits/calibration['foodquality_temperature']).softmax(0)
             fq_index=int(fq_prob.argmax());fq_food=FOODS[fq_index]
-            q_logits=self.base.quality(x).reshape(9,2)[fq_index]
+            from .quality_ensemble import condition_logits
+            legacy_raw=torch.cat([deep,torch.from_numpy(visual_features(im))])[None]
+            q_logits=condition_logits(self.base.data,raw[None],legacy_raw)[0,fq_index]
             fq_quality=(q_logits/calibration['foodquality_quality_temperature']).softmax(0)
             sic_logits=deep@self.sic['model_state_dict']['classifier.1.weight'].T+self.sic['model_state_dict']['classifier.1.bias']
             # Food logits marginalize over appearance classes before temperature scaling.

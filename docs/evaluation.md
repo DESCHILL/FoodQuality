@@ -1,5 +1,24 @@
 # Evaluation record
 
+## Release 2026-10-18: two detail views and quality ensemble
+
+The activated bundle uses two 320×320 FoodQuality views and a validation-selected 50/50 mixture of the new and original quality heads. SIC retains its original preprocessing. Training data contains 6,823 source images plus 4,604 training-only derivatives (11,427 total). Original validation/test images and acquisition groups were preserved.
+
+The standalone new head improved joint accuracy but reduced spoiled recall and was not released. Higher spoiled-weight runs also failed the recall guard. The quality ensemble passed: validation macro F1 increased from 96.46% to 97.99%, while macro spoiled recall remained at least the original 96.71%. The ensemble classifier's internal test results on 1,121 images were 99.55% food accuracy and 97.23% joint food/state accuracy, compared with 97.68% and 92.33% for the original classifier on those same images.
+
+Full three-source validation, 1,098 images:
+
+| Metric | Previous bundle | Released bundle |
+|---|---:|---:|
+| Correct food identity | 99.27% | 99.64% |
+| State conclusion coverage | 92.17% | 95.45% |
+| Food + state correct among accepted | 97.73% | 98.85% |
+| Correct and accepted over all images | 90.07% | 94.35% |
+
+A fixed stratified subset of 86 validation images was also tested after each of three perturbations. Food identity accuracy was 100% for rotation, dim/blur and corner occlusion. Accepted joint accuracy was 100% for rotation and dim/blur, at respective coverage 88.37% and 93.02%. Occlusion was evaluated for food identity only because freshness evidence may be hidden. These are small controlled internal checks, not guarantees for arbitrary camera views, severe occlusion or food safety. The reported tomato image remains an unknown freshness case, rather than a forced fresh/spoiled answer.
+
+71 unit/integration tests passed locally, the automatic-upload regression passed, and Windows CI passed for commit `19e9ef7`. Checkpoints, source images and per-image evaluation records remain local. The earlier experiments below are historical results, not metrics of this release.
+
 ## Reported tomato image
 
 The supplied image is a red tomato with a clean surface. The original FoodClass model returned spoiled with a score of 79.6%; the source-trained merged model returned unknown. SIC EfficientNet identified tomato and favoured normal appearance. This image was not added to training and no filename/image-specific rule was introduced.
