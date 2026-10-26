@@ -16,7 +16,7 @@ CONDITIONS = dict(fresh='Tươi', fresh_raw='Tươi sống', semi_fresh='Ít tư
                   spoiled='Có dấu hiệu hỏng', visibly_spoiled='Có dấu hiệu hỏng', unknown='Chưa xác định',
                   cooked='Đã nấu', near_spoilage='Sắp hỏng', near_spoiled='Sắp hỏng', severely_spoiled='Hỏng nặng')
 
-st.set_page_config(page_title='FoodVision · Nhận diện thực phẩm', page_icon='🥬', layout='wide')
+st.set_page_config(page_title='FoodQuality', page_icon='🥬', layout='wide')
 st.markdown('''<style>
 .block-container{max-width:1150px;padding-top:2.5rem}
 [data-testid="stAppViewContainer"]{background:#f7faf8}
@@ -25,26 +25,27 @@ st.markdown('''<style>
 h1,h2,h3{color:#164c3d}
 [data-testid="stToolbar"]{display:none}
 [data-testid="stMetric"]{background:white;border:1px solid #dce9e1;border-radius:12px;padding:18px}
+.food-banner{position:relative;overflow:hidden;background:linear-gradient(115deg,#123d2d,#22704e);border-radius:24px;padding:42px 40px;margin-bottom:34px;color:white;min-height:180px;box-sizing:border-box}
+.food-banner h1{color:white!important;font-size:44px;margin:0;padding:0;letter-spacing:-1.5px}
+.food-banner p{color:#e0f2e7!important;margin:12px 0 0;font-size:17px}
+.food-banner .illustration{position:absolute;right:40px;top:32px;font-size:72px;letter-spacing:8px;transform:rotate(-8deg)}
+.food-banner .banner-copy{position:relative;z-index:1;max-width:65%}
+[data-testid="stFileUploader"]{background:white;border:1px solid #dce9e1;border-radius:16px;padding:12px}
+@media(max-width:700px){.food-banner{padding:28px 24px}.food-banner h1{font-size:34px}.food-banner .banner-copy{max-width:100%}.food-banner .illustration{display:none}}
 </style>''', unsafe_allow_html=True)
-st.caption('FOODVISION • NHẬN DIỆN QUA HÌNH ẢNH')
-st.title('Hiểu rõ thực phẩm trong ảnh của bạn')
-st.write('Tải ảnh hoặc chụp ảnh để xác định thực phẩm và quan sát tình trạng bên ngoài.')
+st.markdown('''<section class="food-banner"><div class="banner-copy">
+<h1>FoodQuality</h1><p>Nhận diện thực phẩm · Đánh giá tươi, hỏng qua hình ảnh</p>
+</div><div class="illustration" aria-hidden="true">🥬 🍅 🍊</div></section>''',unsafe_allow_html=True)
 
 ready = False
 food9_mode=False
 fusion_mode=False
 consensus_mode=False
-if (ROOT/'models/food9.json').exists():
-    with st.expander('Nguồn mô hình'):
-        options=['Demo 9 loại · dataset có nhãn','Minh họa huấn luyện Google']
-        if (ROOT/'models/fusion.json').exists(): options.insert(0,'Kết hợp SIC + FoodQuality')
-        if (ROOT/'models/consensus.json').exists(): options.insert(0,'Nhận diện từ cả 3 nguồn')
-        selected=st.selectbox('Chế độ',options)
-    fusion_mode=selected.startswith('Kết hợp')
-    consensus_mode=selected.startswith('Nhận diện từ cả')
-    food9_mode=selected.startswith('Demo') or fusion_mode or consensus_mode
-    if food9_mode:
-        BUNDLE=ROOT/'models/consensus.json' if consensus_mode else ROOT/'models/fusion.json' if fusion_mode else ROOT/'models/food9.json'
+consensus_mode=(ROOT/'models/consensus.json').exists()
+fusion_mode=not consensus_mode and (ROOT/'models/fusion.json').exists()
+food9_mode=consensus_mode or fusion_mode or (ROOT/'models/food9.json').exists()
+if food9_mode:
+    BUNDLE=ROOT/'models/consensus.json' if consensus_mode else ROOT/'models/fusion.json' if fusion_mode else ROOT/'models/food9.json'
 try:
     if food9_mode:
         import json
@@ -56,18 +57,6 @@ try:
     else:
         bundle = load_bundle(BUNDLE)
     ready = True
-    st.success('Hệ thống sẵn sàng phân tích ảnh.')
-    st.caption('Phạm vi mô hình hiện tại: '+', '.join(FOODS.get(name,name) for name in bundle['detector']['classes']))
-    if food9_mode:
-        st.caption('Nguồn: '+weight_registry['source']+' · Suy luận cục bộ.')
-        if fusion_mode:
-            st.caption('Ưu tiên bộ phân loại đã học từ hai nguồn; YOLO SIC hỗ trợ tìm vùng khi nhận dạng chưa rõ. Chất lượng chỉ hỗ trợ 9 loại trên; nhãn khác chưa được đánh giá Tươi/Hỏng.')
-        if consensus_mode:
-            st.caption('FoodQuality, SIC EfficientNet và SIC YOLO đều chạy. Chọn tên có điểm cao nhất sau hiệu chỉnh; đánh giá Tươi/Hỏng riêng, có thể chưa xác định khi các mô hình bất đồng.')
-        st.info('Đánh giá ngoại quan theo nhãn dataset; không xác nhận an toàn ăn uống. Ảnh không rõ sẽ trả Chưa xác định.')
-        st.caption('Dùng ảnh một loại thực phẩm trong phạm vi trên. Riêng thịt cừu có ít nhóm ảnh độc lập; kết quả còn hạn chế. Không hỗ trợ thịt lợn trong bản demo 9 loại.')
-    elif any(bundle[k].get('experimental') for k in ('detector','classifier')):
-        st.warning('Bản thử nghiệm: mô hình học từ nhãn/vùng tự động chưa kiểm chứng. Kết quả chỉ để tham khảo ngoại quan, chưa có độ chính xác thực tế được xác nhận.')
 except (ValueError, OSError, KeyError) as exc:
     st.info(str(exc))
 
@@ -90,7 +79,7 @@ def get_predictor(bundle_fingerprint, implementation_fingerprint, registry_path,
 left,right=st.columns([1,1],gap='large')
 with left:
     st.subheader('1. Chọn ảnh thực phẩm')
-    mode=st.radio('Nguồn ảnh',['Tải ảnh','Chụp ảnh'],horizontal=True)
+    mode=st.radio('Chọn cách thêm ảnh',['Tải ảnh','Chụp ảnh'],horizontal=True,label_visibility='collapsed')
     uploaded=st.file_uploader('Ảnh JPG, PNG hoặc WEBP',type=['jpg','jpeg','png','webp']) if mode=='Tải ảnh' else st.camera_input('Chụp rõ thực phẩm')
     image=None
     if uploaded is not None:
@@ -105,7 +94,6 @@ with left:
         except Exception as exc:
             st.error(f'Không đọc được ảnh: {exc}')
     analyze=ready and image is not None
-    st.caption('Ảnh được phân tích tự động ngay khi tải lên hoặc chụp xong.')
 with right:
     st.subheader('2. Kết quả phân tích')
     if analyze:
@@ -147,49 +135,9 @@ with right:
                             st.caption(f"Điểm nhận diện: {row['detection_score']:.1%}")
                         else:
                             st.caption(f"Điểm nhận diện: {row['detection_score']:.1%} · Điểm phân loại: {row['quality_score']:.1%}")
-                        if row.get('prediction_source'): st.caption(row['prediction_source'])
-                        if row.get('source_scores'):
-                            with st.expander('Kết quả cả 3 bộ nhận diện',expanded=True):
-                                for source in row['source_scores']:
-                                    name=FOODS.get(source['food'],source['food']) if source['food'] else 'Không phát hiện'
-                                    st.write(f"{source['source']}: {name} — {source['score']:.1%}")
-                        if row.get('quality_evidence'):
-                            with st.expander('Đối chiếu trạng thái'):
-                                for item in row['quality_evidence']:
-                                    label='Bất thường ngoại quan' if item['condition']=='defect' else CONDITIONS.get(item['condition'],item['condition'])
-                                    st.write(f"{item['source']}: {FOODS.get(item['food'],item['food'])} · {label} — {item['score']:.1%}")
                         if row['reason']:
                             st.caption(row['reason'])
-                        if row.get('visual_signs'):
-                            with st.expander('Dấu hiệu ngoại quan được tham khảo'):
-                                for sign in row['visual_signs']:
-                                    st.write(sign)
-                                st.caption('Đặc trưng màu/bề mặt được học cùng dataset; không dùng luật màu đơn lẻ để kết luận hỏng. Không quan sát được mùi hoặc vi sinh từ ảnh.')
-                        if row['condition']=='unknown' and row.get('quality_candidates'):
-                            st.write('Các nhãn mô hình đang cân nhắc — chưa phải kết luận:')
-                            for candidate in row['quality_candidates']:
-                                label=CONDITIONS.get(candidate['condition'],candidate['condition'])
-                                name=FOODS.get(candidate['food'],candidate['food'])
-                                st.caption(f"{name} · {label}: điểm {candidate['score']:.1%}")
-                if fresh_result:
-                    st.session_state.setdefault('history',[]).insert(0,[{**r,'food':FOODS.get(r['food'],r['food'])} for r in rows])
-                    st.session_state['history']=st.session_state['history'][:10]
         except Exception as exc:
             st.error(f'Chưa thể phân tích ảnh: {exc}')
     else:
         st.write('Chọn hoặc chụp ảnh; kết quả sẽ tự xuất hiện tại đây.')
-st.caption('Đánh giá ngoại quan không khẳng định an toàn ăn uống. Điểm mô hình chưa phải xác suất đã được hiệu chuẩn.')
-with st.expander('Các thực phẩm được hỗ trợ'):
-    if ready:
-        st.write(', '.join(FOODS.get(name,name) for name in bundle['detector']['classes']))
-    else:
-        st.write('Danh sách sẽ xuất hiện sau khi mô hình được kích hoạt.')
-with st.expander('Lịch sử trong phiên này'):
-    history=st.session_state.get('history',[])
-    if not history:
-        st.write('Chưa có lượt phân tích.')
-    for i,rows in enumerate(history,1):
-        st.write(f'Lượt {i}',[dict(thuc_pham=r['food'],trang_thai=CONDITIONS.get(r['condition'],r['condition'])) for r in rows])
-    if st.button('Xóa lịch sử'):
-        st.session_state['history']=[]
-        st.rerun()
