@@ -30,6 +30,10 @@ h1,h2,h3{color:#164c3d}
 .food-banner p{color:#e0f2e7!important;margin:12px 0 0;font-size:17px}
 .food-banner .illustration{position:absolute;right:40px;top:32px;font-size:72px;letter-spacing:8px;transform:rotate(-8deg)}
 .food-banner .banner-copy{position:relative;z-index:1;max-width:65%}
+.food-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;border-top:1px solid #dce9e1;margin-top:72px;padding:24px 0;color:#60796d;font-size:14px}
+.food-footer strong{color:#164c3d;font-size:20px;letter-spacing:-.5px}
+.food-footer span{color:#60796d}
+[data-testid="stMainBlockContainer"]{min-height:calc(100vh - 32px);display:flex;flex-direction:column}
 [data-testid="stFileUploader"]{background:white;border:1px solid #dce9e1;border-radius:16px;padding:12px}
 @media(max-width:700px){.food-banner{padding:28px 24px}.food-banner h1{font-size:34px}.food-banner .banner-copy{max-width:100%}.food-banner .illustration{display:none}}
 </style>''', unsafe_allow_html=True)
@@ -141,3 +145,10 @@ with right:
             st.error(f'Chưa thể phân tích ảnh: {exc}')
     else:
         st.write('Chọn hoặc chụp ảnh; kết quả sẽ tự xuất hiện tại đây.')
+
+from datetime import date
+st.markdown(f'''<footer class="food-footer">
+<strong>🥬 FoodQuality</strong>
+<span>Nhận diện thực phẩm qua hình ảnh</span>
+<span>© {date.today().year} FoodQuality</span>
+</footer>''',unsafe_allow_html=True)
