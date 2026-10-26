@@ -52,8 +52,13 @@ def main():
     p.add_argument('--split',choices=['val','test'],default='val')
     p.add_argument('--full-clean',action='store_true')
     p.add_argument('--baseline-only',action='store_true')
+    p.add_argument('--features-base',type=Path)
+    p.add_argument('--legacy-base',type=Path)
     args=p.parse_args()
+    if bool(args.features_base)!=bool(args.legacy_base):raise ValueError('Provide both feature directories.')
     rows=[r for r in json.loads(args.manifest.read_text(encoding='utf8')) if r['split']==args.split and not r.get('derived_from')]
+    from foodquality8.source_dataset import verify_files
+    verify_files(rows)
     groups=defaultdict(list)
     for r in rows:groups[(r['food'],r['condition'])].append(r)
     subset=[]
@@ -67,17 +72,26 @@ def main():
         hashes[name]=hashlib.sha256(path.read_bytes()).hexdigest()
         cache_path=args.output.with_name(args.output.stem+'-'+name+'.json')
         signature=dict(config_sha256=hashes[name],manifest_sha256=manifest_hash,
-                       split=args.split,full_clean=args.full_clean,transforms_version=1)
+                       split=args.split,full_clean=args.full_clean,transforms_version=1,
+                       cached_features=bool(args.features_base))
         if cache_path.exists():
             cached=json.loads(cache_path.read_text(encoding='utf8'))
             if cached.get('signature')==signature:
                 results[name]=cached;print('Reused matching evaluation:',name,flush=True);continue
         model=ConsensusPredictor(path);records=[];metrics={}
+        prepared={}
+        if args.features_base:
+            from foodquality8.evaluation_cache import prepare_features
+            prepared=prepare_features(model.base.data,rows,args.features_base,args.legacy_base)
         for kind in ('clean','rotation','dim_blur','occlusion'):
             selected=rows if kind=='clean' and args.full_clean else subset
             section=[]
             for i,row in enumerate(selected):
-                with Image.open(row['path']) as image:prediction=model.predict(perturb(image,kind))[0]
+                with Image.open(row['path']) as image:
+                    if kind=='clean' and prepared:
+                        prediction=model.predict_cached(image,*prepared[row['sha256']])[0]
+                    else:
+                        prediction=model.predict(perturb(image,kind))[0]
                 section.append(dict(sha256=row['sha256'],food=row['food'],condition=row['condition'],kind=kind,prediction=prediction))
                 if (i+1)%50==0:print(name,kind,i+1,'/',len(selected),flush=True)
             metrics[kind]=summary(section);records+=section

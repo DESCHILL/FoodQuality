@@ -38,6 +38,8 @@ Chọn thư mục run mới mỗi lần để không ghi đè checkpoint. Nút N
 
 `workspace/dataset-current.json` chọn `source_base`, `training_base`, `reuse_source` và `reuse_training` cho nút huấn luyện. Không có cấu hình này thì dùng bộ cũ. Đặc trưng của encoder ImageNet cố định được tái sử dụng theo SHA256 ảnh và đúng công thức tiền xử lý; chỉ ảnh mới chạy lại encoder. Tệp tiến độ cho phép tiếp tục lần trích đặc trưng bị ngừng. Không chạy hai tác vụ ghi đặc trưng vào cùng một thư mục đồng thời.
 
+Trích đặc trưng trên CPU dùng bố trí bộ nhớ channels-last, giữ nguyên kích thước, trọng số và phép tiền xử lý. Khi đánh giá, ảnh sạch có thể tái sử dụng đặc trưng nếu đúng manifest, công thức và encoder ImageNet cố định; YOLO vẫn chạy trên ảnh. Ảnh xoay/mờ/che vẫn tính đặc trưng mới. Quy trình tự đối chiếu kết quả trực tiếp và kết quả dùng cache trên một ảnh validation của mỗi loại/trạng thái, yêu cầu cùng nhãn và điểm tương đương trong sai số số học trước khi kiểm tra toàn bộ tập.
+
 Các lệnh chuẩn bị đợt mở rộng:
 
 ```powershell

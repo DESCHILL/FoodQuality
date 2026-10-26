@@ -35,20 +35,33 @@ class ConsensusPredictor:
         self.detector=YOLO(self.config['detector'])
 
     def predict(self,image):
+        return self._predict(image)
+
+    def predict_cached(self,image,detail_features,legacy_features):
+        values=[torch.as_tensor(v,dtype=torch.float32) for v in (detail_features,legacy_features)]
+        if any(v.shape!=(1331,) or not torch.isfinite(v).all() for v in values):
+            raise ValueError('Invalid precomputed image features.')
+        return self._predict(image,values)
+
+    def _predict(self,image,features=None):
         from .food9 import visual_features
         im=ImageOps.exif_transpose(image).convert('RGB')
         calibration=self.config['calibration']
         with torch.inference_mode():
-            deep=self.base.encoder(self.base.transform(im).unsqueeze(0))[0]
             from .robust_views import LEGACY,extract_features
-            raw=(torch.cat([deep,torch.from_numpy(visual_features(im))]) if self.base.preprocessing==LEGACY
-                 else extract_features(self.base.encoder,[im],self.base.preprocessing)[0])
+            if features is None:
+                deep=self.base.encoder(self.base.transform(im).unsqueeze(0))[0]
+                legacy_raw=torch.cat([deep,torch.from_numpy(visual_features(im))])[None]
+                raw=(legacy_raw[0] if self.base.preprocessing==LEGACY
+                     else extract_features(self.base.encoder,[im],self.base.preprocessing)[0])
+            else:
+                raw,legacy=features;legacy_raw=legacy[None];deep=legacy[:1280]
+                if self.base.preprocessing==LEGACY:raw=legacy
             x=((raw-self.base.data['mean'])/self.base.data['std']).clamp(-8,8)[None]
             fq_logits=self.base.food(x)[0]
             fq_prob=(fq_logits/calibration['foodquality_temperature']).softmax(0)
             fq_index=int(fq_prob.argmax());fq_food=FOODS[fq_index]
             from .quality_ensemble import condition_logits
-            legacy_raw=torch.cat([deep,torch.from_numpy(visual_features(im))])[None]
             q_logits=condition_logits(self.base.data,raw[None],legacy_raw)[0,fq_index]
             fq_quality=(q_logits/calibration['foodquality_quality_temperature']).softmax(0)
             sic_logits=deep@self.sic['model_state_dict']['classifier.1.weight'].T+self.sic['model_state_dict']['classifier.1.bias']
