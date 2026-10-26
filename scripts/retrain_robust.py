@@ -56,7 +56,10 @@ def main():
     if not json.loads(comparison.read_text(encoding='utf8'))['passed']:
         state(status='complete',activated_new_models=False,message='Đã học xong; bản mới chưa vượt kiểm tra phân loại, giữ mô hình website.');return
     commands=[('calibrate_consensus.py','--base',base,'--legacy-base',source,'--quality-registry',quality,'--output',consensus),
-              ('evaluate_robust_consensus.py','--candidate',consensus,'--manifest',source/'split.json','--output',evaluation,'--full-clean')]
+              ('check_cached_inference.py','--registry',consensus,'--manifest',source/'split.json',
+               '--features-base',base,'--legacy-base',source,'--output',run/'cached-inference-check.json'),
+              ('evaluate_robust_consensus.py','--candidate',consensus,'--manifest',source/'split.json','--output',evaluation,'--full-clean',
+               '--features-base',base,'--legacy-base',source)]
     for command in commands:
         if not execute(*command):return
     if not json.loads(evaluation.read_text(encoding='utf8'))['passed']:
