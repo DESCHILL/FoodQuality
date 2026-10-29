@@ -31,7 +31,8 @@ class ModuleStructureTests(unittest.TestCase):
             manifest.write_text(json.dumps([row]), encoding='utf8')
             result = consolidate([manifest, manifest], root / 'unified')
             self.assertEqual(result['images'], 1)
-            self.assertEqual(json.loads((root/'unified/split.json').read_text(encoding='utf8')), [row])
+            expected = dict(row, path=str(image.resolve()))
+            self.assertEqual(json.loads((root/'unified/split.json').read_text(encoding='utf8')), [expected])
             second = root / 'second.json'
             second.write_text(json.dumps([dict(row, split='test')]), encoding='utf8')
             with self.assertRaises(ValueError):
