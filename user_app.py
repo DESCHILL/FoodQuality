@@ -33,7 +33,9 @@ h1,h2,h3{color:#164c3d}
 .food-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;border-top:1px solid #dce9e1;margin-top:72px;padding:24px 0;color:#60796d;font-size:14px}
 .food-footer strong{color:#164c3d;font-size:20px;letter-spacing:-.5px}
 .food-footer span{color:#60796d}
-[data-testid="stMainBlockContainer"]{min-height:calc(100vh - 32px);display:flex;flex-direction:column}
+[data-testid="stMainBlockContainer"]{min-height:100vh;display:flex;flex-direction:column;padding-bottom:16px}
+[data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]{flex:1}
+[data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.food-footer){margin-top:auto}
 [data-testid="stFileUploader"]{background:white;border:1px solid #dce9e1;border-radius:16px;padding:12px}
 @media(max-width:700px){.food-banner{padding:28px 24px}.food-banner h1{font-size:34px}.food-banner .banner-copy{max-width:100%}.food-banner .illustration{display:none}}
 </style>''', unsafe_allow_html=True)
