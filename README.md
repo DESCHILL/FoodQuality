@@ -16,13 +16,25 @@ Weights, ảnh và cấu hình chứa đường dẫn cục bộ không đưa v�
 
 ## Cấu trúc
 
-- `image_search.py`: tìm ảnh Google, tải, lọc và xuất Excel.
-- `foodquality8/training.py`: huấn luyện EfficientNet và YOLO.
-- `foodquality8/train_pair.py`: quy trình huấn luyện hai mô hình.
-- `foodquality8/`: quản lý dữ liệu, suy luận và kiểm tra model.
-- `scripts/`: nhập dataset, huấn luyện, so sánh và đánh giá.
-- `tests/`: kiểm thử dữ liệu, huấn luyện và giao diện.
-- `user_app.py`: website tra cứu.
+Mã nghiệp vụ được chia thành đúng **3 phần**:
+
+| Phần | Thư mục | Chức năng |
+| --- | --- | --- |
+| Dataset dùng chung | `foodquality8/dataset/` | Thu thập Google, nhập dữ liệu, lọc ảnh, nhãn, Excel, chia tập và gộp chỉ mục |
+| AI nhận diện | `foodquality8/ai_detection/` | Huấn luyện YOLO, khoanh vùng, hợp nhất kết quả nhận diện và chạy suy luận |
+| AI chất lượng | `foodquality8/ai_quality/` | EfficientNet, đặc trưng nhiều vùng ảnh, phân loại Tươi/Hỏng, đánh giá và chọn model |
+
+Các file Python cũ trực tiếp trong `foodquality8/` và `image_search.py` chỉ chuyển tiếp import để các lệnh chạy, GUI và mã tích hợp cũ tiếp tục hoạt động. `scripts/` chứa lệnh chạy; `tests/` chứa kiểm thử; `user_app.py` và các GUI là giao diện dùng ba phần trên. Không có bản sao thuật toán riêng trong các file chuyển tiếp.
+
+### Dataset FoodQuality
+
+Các bộ ảnh được sử dụng như một dataset logic tên **FoodQuality**. Chỉ mục chung giữ đường dẫn đến ảnh gốc, nhãn, nhóm ảnh trùng và tập train/val/test. Metadata giữ xuất xứ thực tế; ảnh nhập từ dataset khác không được ghi thành ảnh do Google collector tải về.
+
+```powershell
+.venv\Scripts\python.exe -m foodquality8.dataset.unified --manifest workspace/source9_v5/split.json --output workspace/dataset-unified
+```
+
+Có thể thêm nhiều `--manifest` để gộp các chỉ mục cùng cấu trúc. Lệnh kiểm tra SHA-256 từng ảnh, loại bản ghi trùng hoàn toàn và từ chối xung đột nhãn/nguồn hoặc nhóm ảnh nằm ở nhiều tập. Thư mục đích phải chưa tồn tại để tránh ghi đè dữ liệu. `split.json` dùng cùng định dạng với pipeline huấn luyện hiện tại; `dataset.json` lưu thống kê và nguồn gốc. Chỉ mục tham chiếu ảnh gốc, vì vậy khi chuyển máy cần mang theo ảnh và cập nhật đường dẫn. Các model, cache và cấu hình huấn luyện đang hoạt động được giữ nguyên.
 
 Phạm vi Tươi/Hỏng: bò, gà, cừu; táo, chuối, cam; cà chua, dưa chuột, cà rốt. Nhận dạng và trạng thái là hai bài toán riêng; ảnh không đủ bằng chứng có thể trả Chưa xác định. Kết quả ngoại quan không xác nhận an toàn ăn uống.
 

@@ -15,13 +15,16 @@ def main():
     with patch('streamlit.file_uploader',side_effect=lambda *a,**k:Upload(raw)):
         app=AppTest.from_file(str(ROOT/'user_app.py')).run(timeout=60)
         assert not app.exception and not app.error
-        assert app.selectbox[0].value=='Nhận diện từ cả 3 nguồn'
+        assert not app.selectbox
         result=app.session_state['analysis_rows'][0]
         assert len(result['source_scores'])==3
         assert result['food']=='tomato'
         assert result['condition']!='spoiled'
+        key=app.session_state['analysis_key']
         app.run(timeout=60)
-        assert len(app.session_state['history'])==1
+        assert not app.exception and not app.error
+        assert app.session_state['analysis_key']==key
+        assert app.session_state['analysis_rows'][0]==result
         print('Automatic upload, three-source recognition and tomato regression: PASS')
 
 if __name__=='__main__':main()

@@ -1,4 +1,5 @@
 """End-user interface. Contains no dataset collection or training controls."""
+from foodquality8 import module_path
 import hashlib
 from pathlib import Path
 
@@ -33,7 +34,9 @@ h1,h2,h3{color:#164c3d}
 .food-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;border-top:1px solid #dce9e1;margin-top:72px;padding:24px 0;color:#60796d;font-size:14px}
 .food-footer strong{color:#164c3d;font-size:20px;letter-spacing:-.5px}
 .food-footer span{color:#60796d}
-[data-testid="stMainBlockContainer"]{min-height:calc(100vh - 32px);display:flex;flex-direction:column}
+[data-testid="stMainBlockContainer"]{min-height:100vh;display:flex;flex-direction:column;padding-bottom:16px}
+[data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]{flex:1}
+[data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.food-footer){margin-top:auto}
 [data-testid="stFileUploader"]{background:white;border:1px solid #dce9e1;border-radius:16px;padding:12px}
 @media(max-width:700px){.food-banner{padding:28px 24px}.food-banner h1{font-size:34px}.food-banner .banner-copy{max-width:100%}.food-banner .illustration{display:none}}
 </style>''', unsafe_allow_html=True)
@@ -104,11 +107,11 @@ with right:
         try:
             with st.spinner('Đang nhận diện và đánh giá...'):
                 fingerprint=hashlib.sha256(BUNDLE.read_bytes()).hexdigest()
-                implementation_bytes=(ROOT/'foodquality8'/('food9.py' if food9_mode else 'inference.py')).read_bytes()
-                if fusion_mode: implementation_bytes+=(ROOT/'foodquality8/fusion.py').read_bytes()
-                if consensus_mode: implementation_bytes+=(ROOT/'foodquality8/consensus.py').read_bytes()
+                implementation_bytes=module_path('food9' if food9_mode else 'inference').read_bytes()
+                if fusion_mode: implementation_bytes+=module_path('fusion').read_bytes()
+                if consensus_mode: implementation_bytes+=module_path('consensus').read_bytes()
                 if food9_mode or fusion_mode or consensus_mode:
-                    implementation_bytes+=(ROOT/'foodquality8/food9.py').read_bytes()+(ROOT/'foodquality8/robust_views.py').read_bytes()+(ROOT/'foodquality8/quality_ensemble.py').read_bytes()
+                    implementation_bytes+=module_path('food9').read_bytes()+module_path('robust_views').read_bytes()+module_path('quality_ensemble').read_bytes()
                 implementation=hashlib.sha256(implementation_bytes).hexdigest()
                 request_key=hashlib.sha256(uploaded.getvalue()).hexdigest()+fingerprint+implementation
                 fresh_result=st.session_state.get('analysis_key')!=request_key
