@@ -34,20 +34,13 @@ Chạy trực tiếp:
 .venv\Scripts\python.exe -X utf8 scripts/retrain_robust.py --run model_runs/food9/new-run
 ```
 
-Chọn thư mục run mới mỗi lần để không ghi đè checkpoint. Nút Ngừng tạo tệp STOP; tiến trình con dừng và không thay mô hình website.
+Chọn thư mục run mới mỗi lần để không ghi đè checkpoint. Tạo tệp STOP trong thư mục run để ngừng; tiến trình con dừng và không thay mô hình website.
 
-`workspace/dataset-current.json` chọn `source_base`, `training_base`, `reuse_source` và `reuse_training` cho nút huấn luyện. Không có cấu hình này thì dùng bộ cũ. Đặc trưng của encoder ImageNet cố định được tái sử dụng theo SHA256 ảnh và đúng công thức tiền xử lý; chỉ ảnh mới chạy lại encoder. Tệp tiến độ cho phép tiếp tục lần trích đặc trưng bị ngừng. Không chạy hai tác vụ ghi đặc trưng vào cùng một thư mục đồng thời.
+`workspace/dataset-current.json` chọn `source_base`, `training_base`, `reuse_source` và `reuse_training` cho lệnh huấn luyện. Không có cấu hình này thì dùng bộ cũ. Đặc trưng của encoder ImageNet cố định được tái sử dụng theo SHA256 ảnh và đúng công thức tiền xử lý; chỉ ảnh mới chạy lại encoder. Tệp tiến độ cho phép tiếp tục lần trích đặc trưng bị ngừng. Không chạy hai tác vụ ghi đặc trưng vào cùng một thư mục đồng thời.
 
 Trích đặc trưng trên CPU dùng bố trí bộ nhớ channels-last, giữ nguyên kích thước, trọng số và phép tiền xử lý. Khi đánh giá, ảnh sạch có thể tái sử dụng đặc trưng nếu đúng manifest, công thức và encoder ImageNet cố định; YOLO vẫn chạy trên ảnh. Ảnh xoay/mờ/che vẫn tính đặc trưng mới. Quy trình tự đối chiếu kết quả trực tiếp và kết quả dùng cache trên một ảnh validation của mỗi loại/trạng thái, yêu cầu cùng nhãn và điểm tương đương trong sai số số học trước khi kiểm tra toàn bộ tập.
 
-Các lệnh chuẩn bị đợt mở rộng:
-
-```powershell
-.venv\Scripts\python.exe -X utf8 scripts/expand_source_dataset.py --base workspace/tomato_v3 --output workspace/source9_v4
-.venv\Scripts\python.exe -X utf8 scripts/collect_food9.py --output workspace/foodclass-expanded --per-class 1000
-.venv\Scripts\python.exe -X utf8 scripts/import_foodclass_expansion.py --base workspace/source9_v4 --catalog workspace/foodclass-expanded/catalog.json --output workspace/source9_v5
-.venv\Scripts\python.exe -X utf8 scripts/build_robust_dataset.py --source workspace/source9_v5/split.json --output workspace/robust9_v3 --reuse workspace/robust9_v2
-```
+Dữ liệu được nhập từ bên ngoài theo hướng dẫn trong README. Repository này không chứa tool thu thập. Với dataset chín loại đã có split.json, dùng scripts/build_robust_dataset.py để tạo biến thể và scripts/retrain_robust.py để huấn luyện, đánh giá.
 
 ## Kiểm tra và phát hành
 

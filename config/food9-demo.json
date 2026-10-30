@@ -1,9 +1,0 @@
-{
-  "foods": ["beef", "chicken", "mutton", "apple", "banana", "orange", "tomato", "cucumber", "carrot"],
-  "conditions": ["fresh", "spoiled"],
-  "unknown_is_abstention_not_training_class": true,
-  "source": "https://data.mendeley.com/datasets/5fjkkv5xgt/2",
-  "license": "CC-BY-4.0",
-  "google_mode": "training_workflow_demonstration",
-  "default_website_model": "models/consensus.json"
-}

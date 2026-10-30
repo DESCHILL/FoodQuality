@@ -23,7 +23,7 @@ def main():
     parser.add_argument('--output',type=Path,default=ROOT/'models/consensus-candidate.json')
     args=parser.parse_args()
     torch.set_num_threads(4)
-    registry=json.loads((ROOT/'models/fusion.json').read_text(encoding='utf8'))
+    registry=json.loads((ROOT/'models/consensus.json').read_text(encoding='utf8'))
     qp=(args.quality_registry or Path(registry['quality_registry'])).resolve();qreg=json.loads(qp.read_text(encoding='utf8'))
     ck=torch.load(qreg['weights'],weights_only=True,map_location='cpu')
     rows=json.loads((args.base/'split.json').read_text(encoding='utf8'))
@@ -38,7 +38,7 @@ def main():
     y=torch.tensor([FOODS.index(rows[i]['food']) for i in ids]);q=torch.tensor([int(rows[i]['condition']=='spoiled') for i in ids])
     normalized=((x-ck['mean'])/ck['std']).clamp(-8,8)
     fl=normalized@ck['food_head']['weight'].T+ck['food_head']['bias']
-    sicpath=ROOT/'models/sic/condition.pth';sic=torch.load(sicpath,weights_only=True,map_location='cpu')
+    sicpath=Path(registry['sic_classifier']);sic=torch.load(sicpath,weights_only=True,map_location='cpu')
     legacy_rows=json.loads((args.legacy_base/'split.json').read_text(encoding='utf8'))
     legacy_indices={r['sha256']:i for i,r in enumerate(legacy_rows) if r['split']=='val'}
     legacy_cache=np.load(args.legacy_base/'features.npz')

@@ -7,6 +7,7 @@ import unicodedata
 from pathlib import Path
 
 FOOD_ENGLISH = {
+    'thit cuu': 'mutton', 'cuu': 'mutton',
     'thit bo': 'beef', 'bo': 'beef', 'thit lon': 'pork', 'thit heo': 'pork',
     'lon': 'pork', 'heo': 'pork', 'thit ga': 'chicken', 'ga': 'chicken',
     'tao': 'apple', 'chuoi': 'banana', 'cam': 'orange', 'xoai': 'mango',

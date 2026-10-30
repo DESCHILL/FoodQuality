@@ -30,22 +30,6 @@ class ModelSelectionTests(unittest.TestCase):
         write_json(self.new/'run.json',dict(dataset=dict(dataset_sha256='different')))
         self.assertFalse(validation_improved(self.new,self.old,'classifier')[0])
 
-    def test_search_auto_train_exists_and_stop_does_not_train(self):
-        from unittest.mock import patch
-        import gui
-        app=gui.App()
-        app.withdraw()
-        try:
-            tab=app._search_tab
-            self.assertTrue(tab._auto_train.get())
-            with patch.object(tab,'after') as schedule:
-                tab._on_done(False,'')
-                self.assertFalse(any(call.args and call.args[0]==100 for call in schedule.call_args_list))
-                tab._on_done(True,'')
-                self.assertTrue(any(call.args and call.args[0]==100 for call in schedule.call_args_list))
-        finally:
-            app.destroy()
-
     def test_training_new_food_switches_whole_pair_not_old_food(self):
         from foodquality8.model_selection import choose_bundle
         old={'classifier':{'class_labels':[{'food':'pork'}]},'detector':{'classes':['pork']}}

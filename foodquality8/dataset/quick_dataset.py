@@ -58,7 +58,7 @@ def filter_image(path, url=''):
 
 
 def prepare_google(project, food_name, excel_path=None, source_folder=None, required_stages=None):
-    from image_search import food_key, sheet_name, export_excel
+    from foodquality8.dataset.exchange import food_key, sheet_name, export_excel
     project=Path(project)
     folder=Path(source_folder) if source_folder else project/'food15_workspace/image_downloads'/food_key(food_name)
     manifest=folder/'manifest.jsonl'

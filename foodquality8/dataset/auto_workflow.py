@@ -50,7 +50,7 @@ def import_local(project, source, food):
     folder=Path(project)/'food15_workspace/local_imports'/identity
     folder.mkdir(parents=True,exist_ok=True)
     rows=[]
-    def add(raw, stage, origin):
+    def add(raw, stage, origin, source_url='', query='Nhãn từ dữ liệu người dùng'):
         digest=hashlib.sha256(raw).hexdigest()
         try:
             with Image.open(io.BytesIO(raw)) as im:
@@ -62,8 +62,8 @@ def import_local(project, source, food):
         if not path.exists():
             path.write_bytes(raw)
         rows.append(dict(food_code=identity+'_'+digest[:24],img_path=str(path),sha256=digest,
-            width=width,height=height,search_stage=stage or 'unlabeled',source_url='',original_source=str(origin),
-            query='Nhãn từ dữ liệu người dùng',label_origin='local_metadata'))
+            width=width,height=height,search_stage=stage or 'unlabeled',source_url=source_url,original_source=str(origin),
+            query=query,label_origin='local_metadata'))
     if source.is_dir():
         from foodquality8.dataset.google_review import FOOD_ENGLISH
         known=set(FOOD_ENGLISH.values())
@@ -101,10 +101,11 @@ def import_local(project, source, food):
                     path=Path(str(path_value)) if path_value else None
                     if path and not path.is_absolute():
                         path=source.parent/path
+                    provenance = dict(source_url=str(cells[6] or ''), query=str(cells[5] or '')) if toolkit else {}
                     if path and path.is_file():
-                        add(path.read_bytes(),stage,path)
+                        add(path.read_bytes(),stage,path,**provenance)
                     elif n in pictures:
-                        add(pictures[n]._data(),stage,f'{source}#{ws.title}!{n}')
+                        add(pictures[n]._data(),stage,f'{source}#{ws.title}!{n}',**provenance)
         finally:
             wb.close()
     else:

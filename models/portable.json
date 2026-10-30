@@ -1,0 +1,78 @@
+{
+  "mode": "three_source_consensus",
+  "quality_registry": "quality-runtime.json",
+  "sic_classifier": "assets/recognition.pth",
+  "detector": "assets/detector.pt",
+  "calibration": {
+    "foodquality_temperature": 0.537533738962215,
+    "foodquality_quality_temperature": 0.36637799993313935,
+    "sic_temperature": 1.614646072348295,
+    "sic_quality_temperature": 3.374245946608308,
+    "yolo_platt": [
+      1.191542970576027,
+      0.3206232814518659
+    ],
+    "scope": "Source-labelled validation; YOLO calibrated for image-level food agreement on retained boxes >=0.4, not localization IoU; below 0.4 score is extrapolated.",
+    "sic_quality_by_food": {
+      "apple": 1.9540695458834811,
+      "banana": 4.999975610535808,
+      "beef": 0.842970938792072,
+      "carrot": 3.4165398297887477,
+      "chicken": 0.8440137456083349,
+      "cucumber": 3.0935420543722376,
+      "orange": 2.21979574609617,
+      "tomato": 4.648912584124568
+    }
+  },
+  "foods": [
+    "apple",
+    "banana",
+    "beef",
+    "carrot",
+    "chicken",
+    "cucumber",
+    "mutton",
+    "orange",
+    "tomato"
+  ],
+  "quality_threshold": 0.8,
+  "quality_registry_sha256": "75a0a2942bac44405d75be7541184aad7d9ff33935ce98c3b0e41bcde66259c2",
+  "sic_classifier_sha256": "662e14968227a75737589e96f2bcf2ebe8e04478581dec73643c698736f3269c",
+  "detector_sha256": "8af820e136f8575516b2747329028d2ad067003124a4a131598dccd85869cf17",
+  "preprocessing": {
+    "version": 2,
+    "size": 320,
+    "views": 2
+  },
+  "validation_manifest_sha256": "3227fc34d8d1523b5212fd5da3c3f3f78f61bf9969a00826d57551392c1fe460",
+  "quality": {
+    "weights": "assets/quality.pt",
+    "sha256": "953f90f65b93f73e31079098e35be73001e16a4f0a7ffd30ae52ae16677b2c19",
+    "foods": [
+      "apple",
+      "banana",
+      "beef",
+      "carrot",
+      "chicken",
+      "cucumber",
+      "mutton",
+      "orange",
+      "tomato"
+    ],
+    "conditions": [
+      "fresh",
+      "spoiled"
+    ],
+    "source": "AgML raw / bdd69gyhv8.1 + AgriFreshNET v1 + FoodClass V2",
+    "mode": "source_labeled_demo",
+    "test": {
+      "samples": 2488,
+      "food_accuracy": 0.9955787781350482,
+      "joint_accuracy": 0.9742765273311897,
+      "macro_f1": 0.972397244863153,
+      "spoiled_recall": 0.96912927044407
+    },
+    "note": "Không phải kết luận an toàn ăn uống; nhãn nguồn và vùng thu thập chưa được kiểm chứng độc lập.",
+    "quality_ensemble_weight": 0.5
+  }
+}

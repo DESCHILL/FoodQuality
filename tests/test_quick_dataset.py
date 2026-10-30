@@ -10,7 +10,7 @@ from openpyxl import load_workbook
 
 from foodquality8.quick_dataset import prepare_google, filter_image, suggest_stage
 from foodquality8.model_data import check_release
-from image_search import export_excel
+from foodquality8.dataset.exchange import export_excel
 
 
 class QuickDatasetTests(unittest.TestCase):

@@ -1,4 +1,4 @@
 @echo off
 cd /d "%~dp0"
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0start-jupyter.ps1"
+".venv\Scripts\python.exe" chay_web.py
 if errorlevel 1 pause

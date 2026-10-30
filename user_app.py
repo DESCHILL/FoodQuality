@@ -83,6 +83,19 @@ def get_predictor(bundle_fingerprint, implementation_fingerprint, registry_path,
     from foodquality8 import inference
     return importlib.reload(inference).FoodPredictor(registry_path)
 
+with st.container(border=True):
+    st.markdown('**Thực phẩm được hỗ trợ**')
+    supported = set(bundle['detector']['classes']) if ready else set()
+    groups = [('🥩 Thịt', ('beef', 'chicken', 'mutton')),
+              ('🍊 Trái cây', ('apple', 'banana', 'orange')),
+              ('🥕 Rau củ', ('tomato', 'cucumber', 'carrot'))]
+    for column, (title, foods) in zip(st.columns(3), groups):
+        with column:
+            names = [FOODS[food] for food in foods if food in supported]
+            st.markdown(f'**{title}**')
+            st.write(' · '.join(names) if names else 'Chưa có mô hình hỗ trợ')
+    st.caption('Đánh giá: Tươi / Có dấu hiệu hỏng. Nên dùng ảnh rõ, một loại thực phẩm mỗi lần.')
+
 left,right=st.columns([1,1],gap='large')
 with left:
     st.subheader('1. Chọn ảnh thực phẩm')
