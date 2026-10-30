@@ -2,6 +2,8 @@
 
 Đây là gói để nộp và trình bày. Không có Google crawler, giao diện tìm ảnh hoặc phụ thuộc Playwright. Dữ liệu từ tool là đầu vào bên ngoài, không cần cài tool trên máy chạy website.
 
+Nghiên cứu bản Drive, thiết kế hai mô hình, dữ liệu, cross-validation, so sánh thực nghiệm và cách tích hợp web: [báo cáo bảy tiêu chí](docs/model-study.md). Số liệu máy đọc được: [research-results.json](docs/research-results.json).
+
 ## 1. Chạy sản phẩm
 
 ```powershell
@@ -9,6 +11,8 @@ python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 .venv\Scripts\python.exe chay_web.py
 ```
+
+Bản nghiên cứu hai checkpoint: `.venv\Scripts\python.exe chay_web.py --profile dual` (cổng 18502). Mặc định `stable` giữ pipeline hiện tại trên cổng 18501: bản dual tăng nhận diện/độ phủ nhưng test nội bộ có số hỏng→tươi cao hơn, nên chưa tự thay bản đang dùng. Xem bảng so sánh trong báo cáo.
 
 Mở http://127.0.0.1:18501. Gói có trọng số hiện tại trong `models/assets/`; launcher tự cấu hình đường dẫn khi chuyển máy. Dừng website cũ trên cổng 18501 nếu muốn chạy bản đóng gói thay thế. Mã nguồn, trọng số và hash của trọng số được giữ nguyên; không cần huấn luyện lại để trình bày.
 

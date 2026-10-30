@@ -30,7 +30,20 @@ def configure():
 
 
 if __name__ == '__main__':
+    import argparse
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--profile',choices=['stable','dual'],default='stable')
+    parser.add_argument('--port',type=int)
+    args=parser.parse_args()
     os.chdir(ROOT)
     configure()
+    if args.profile=='dual':
+        config=json.loads((ROOT/'models/consensus.json').read_text(encoding='utf8'))
+        config.pop('sic_classifier',None)
+        config.pop('sic_classifier_sha256',None)
+        config.update(mode='two_models',quality_threshold=.8)
+        (ROOT/'models/dual.json').write_text(json.dumps(config,ensure_ascii=False,indent=2),encoding='utf8')
+    os.environ['FOODQUALITY_PROFILE']=args.profile
+    os.environ['FOODQUALITY_PORT']=str(args.port or (18502 if args.profile=='dual' else 18501))
     from launch_user_app import main
     main()

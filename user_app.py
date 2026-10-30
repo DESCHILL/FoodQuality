@@ -1,6 +1,7 @@
 """End-user interface. Contains no dataset collection or training controls."""
 from foodquality8 import module_path
 import hashlib
+import os
 from pathlib import Path
 
 import streamlit as st
@@ -48,16 +49,17 @@ ready = False
 food9_mode=False
 fusion_mode=False
 consensus_mode=False
-consensus_mode=(ROOT/'models/consensus.json').exists()
-fusion_mode=not consensus_mode and (ROOT/'models/fusion.json').exists()
-food9_mode=consensus_mode or fusion_mode or (ROOT/'models/food9.json').exists()
+dual_mode=os.environ.get('FOODQUALITY_PROFILE')=='dual'
+consensus_mode=not dual_mode and (ROOT/'models/consensus.json').exists()
+fusion_mode=not dual_mode and not consensus_mode and (ROOT/'models/fusion.json').exists()
+food9_mode=dual_mode or consensus_mode or fusion_mode or (ROOT/'models/food9.json').exists()
 if food9_mode:
-    BUNDLE=ROOT/'models/consensus.json' if consensus_mode else ROOT/'models/fusion.json' if fusion_mode else ROOT/'models/food9.json'
+    BUNDLE=ROOT/'models/dual.json' if dual_mode else ROOT/'models/consensus.json' if consensus_mode else ROOT/'models/fusion.json' if fusion_mode else ROOT/'models/food9.json'
 try:
     if food9_mode:
         import json
         registry=json.loads(BUNDLE.read_text(encoding='utf8'))
-        weight_registry=json.loads(Path(registry['quality_registry']).read_text(encoding='utf8')) if fusion_mode or consensus_mode else registry
+        weight_registry=json.loads(Path(registry['quality_registry']).read_text(encoding='utf8')) if dual_mode or fusion_mode or consensus_mode else registry
         if not Path(weight_registry['weights']).is_file():
             raise ValueError('Thiếu trọng số demo 9 loại.')
         bundle={'detector':{'classes':registry['foods']},'classifier':{}}
@@ -70,6 +72,9 @@ except (ValueError, OSError, KeyError) as exc:
 @st.cache_resource
 def get_predictor(bundle_fingerprint, implementation_fingerprint, registry_path, use_food9):
     import importlib
+    if use_food9=='dual':
+        from foodquality8.ai_detection import dual
+        return importlib.reload(dual).DualPredictor(registry_path)
     if use_food9=='consensus':
         from foodquality8 import consensus
         return importlib.reload(consensus).ConsensusPredictor(registry_path)
@@ -123,13 +128,14 @@ with right:
                 implementation_bytes=module_path('food9' if food9_mode else 'inference').read_bytes()
                 if fusion_mode: implementation_bytes+=module_path('fusion').read_bytes()
                 if consensus_mode: implementation_bytes+=module_path('consensus').read_bytes()
+                if dual_mode: implementation_bytes+=module_path('ai_detection.dual').read_bytes()+module_path('consensus').read_bytes()
                 if food9_mode or fusion_mode or consensus_mode:
                     implementation_bytes+=module_path('food9').read_bytes()+module_path('robust_views').read_bytes()+module_path('quality_ensemble').read_bytes()
                 implementation=hashlib.sha256(implementation_bytes).hexdigest()
                 request_key=hashlib.sha256(uploaded.getvalue()).hexdigest()+fingerprint+implementation
                 fresh_result=st.session_state.get('analysis_key')!=request_key
                 if fresh_result:
-                    predictor=get_predictor(fingerprint,implementation,str(BUNDLE),'consensus' if consensus_mode else 'fusion' if fusion_mode else food9_mode)
+                    predictor=get_predictor(fingerprint,implementation,str(BUNDLE),'dual' if dual_mode else 'consensus' if consensus_mode else 'fusion' if fusion_mode else food9_mode)
                     rows=predictor.predict(image)
                     st.session_state['analysis_rows']=rows
                     st.session_state['analysis_key']=request_key

@@ -9,7 +9,10 @@ import urllib.request
 import webbrowser
 
 ROOT=Path(__file__).resolve().parent
-URL='http://127.0.0.1:18501'
+PORT=int(os.environ.get('FOODQUALITY_PORT','18501'))
+if not 1024<=PORT<=65535:
+    raise ValueError('Cổng phải nằm trong khoảng 1024–65535.')
+URL=f'http://127.0.0.1:{PORT}'
 
 
 def healthy():
@@ -26,7 +29,7 @@ def main():
     if not healthy():
         with (log_dir/'server.log').open('a',encoding='utf8') as log:
             process=subprocess.Popen([str(ROOT/'.venv/Scripts/python.exe'),'-m','streamlit','run',str(ROOT/'user_app.py'),
-                '--server.address','127.0.0.1','--server.port','18501','--server.headless','true',
+                '--server.address','127.0.0.1','--server.port',str(PORT),'--server.headless','true',
                 '--server.maxUploadSize','15','--browser.gatherUsageStats','false'],cwd=ROOT,stdout=log,stderr=log,
                 creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0),env={**os.environ,'PYTHONUTF8':'1'})
         for _ in range(40):

@@ -26,6 +26,9 @@ runs/
 *.log
 notebooks/
 .vscode/
+drive_demo/
+FoodVision-AI-V2-Demo.zip
+drive-folder.html
 DEMO_9_LOAI.md
 FOODQUALITY15.md
 HUONG_DAN_*.md

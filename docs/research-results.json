@@ -1,0 +1,1524 @@
+{
+  "data": {
+    "images": 16244,
+    "missing_files": 0,
+    "missing_labels": 0,
+    "duplicate_hashes": 0,
+    "groups_crossing_splits": 0,
+    "splits": {
+      "test": 2488,
+      "val": 2597,
+      "train": 11159
+    },
+    "sources": {
+      "FoodClass V2": 13475,
+      "AgML raw / bdd69gyhv8.1": 1181,
+      "AgriFreshNET v1": 1588
+    },
+    "classes": {
+      "apple": {
+        "fresh": {
+          "test": 175,
+          "val": 193,
+          "train": 791
+        },
+        "spoiled": {
+          "test": 200,
+          "val": 218,
+          "train": 821
+        }
+      },
+      "banana": {
+        "fresh": {
+          "test": 193,
+          "val": 242,
+          "train": 928
+        },
+        "spoiled": {
+          "test": 259,
+          "val": 224,
+          "train": 1040
+        }
+      },
+      "beef": {
+        "fresh": {
+          "test": 91,
+          "val": 82,
+          "train": 372
+        },
+        "spoiled": {
+          "test": 130,
+          "val": 148,
+          "train": 627
+        }
+      },
+      "carrot": {
+        "fresh": {
+          "test": 151,
+          "val": 161,
+          "train": 734
+        },
+        "spoiled": {
+          "test": 106,
+          "val": 131,
+          "train": 606
+        }
+      },
+      "chicken": {
+        "fresh": {
+          "test": 98,
+          "val": 98,
+          "train": 454
+        },
+        "spoiled": {
+          "test": 98,
+          "val": 98,
+          "train": 454
+        }
+      },
+      "cucumber": {
+        "fresh": {
+          "test": 73,
+          "val": 64,
+          "train": 425
+        },
+        "spoiled": {
+          "test": 70,
+          "val": 98,
+          "train": 327
+        }
+      },
+      "mutton": {
+        "fresh": {
+          "test": 3,
+          "val": 3,
+          "train": 15
+        },
+        "spoiled": {
+          "test": 3,
+          "val": 3,
+          "train": 5
+        }
+      },
+      "orange": {
+        "fresh": {
+          "test": 243,
+          "val": 237,
+          "train": 986
+        },
+        "spoiled": {
+          "test": 186,
+          "val": 195,
+          "train": 930
+        }
+      },
+      "tomato": {
+        "fresh": {
+          "test": 237,
+          "val": 242,
+          "train": 928
+        },
+        "spoiled": {
+          "test": 172,
+          "val": 160,
+          "train": 716
+        }
+      }
+    }
+  },
+  "external": {
+    "samples": 2597,
+    "split": "val",
+    "scope": "Image-level comparison; no ground-truth boxes; not a localization mAP evaluation.",
+    "seconds": 79.86009070000728,
+    "manifest_sha256": "3cb2d5c91cee9c563d3875940dc54f4e0ffcb002487708bb71470486830a75fd",
+    "weights": {
+      "drive_demo\\FoodVision-AI-V2-Demo\\runs\\raw_train_30\\weights\\best.pt": "e22a545ccbe1afbcc7a0f4deb952b48b170344bf85cc102d77f46e0563ccfee5",
+      "drive_demo\\FoodVision-AI-V2-Demo\\runs\\efficientnet_meat_v1\\best.pt": "e75b00bc510636d9eae81be739792556aadf9763fda8b9c6ad1703f380de2b13"
+    },
+    "raw_all_accuracy": 0.05352329611089719,
+    "raw_by_food": {
+      "apple": {
+        "samples": 411,
+        "accuracy": 0.0
+      },
+      "banana": {
+        "samples": 466,
+        "accuracy": 0.0
+      },
+      "beef": {
+        "samples": 230,
+        "accuracy": 0.6043478260869565
+      },
+      "carrot": {
+        "samples": 292,
+        "accuracy": 0.0
+      },
+      "chicken": {
+        "samples": 196,
+        "accuracy": 0.0
+      },
+      "cucumber": {
+        "samples": 162,
+        "accuracy": 0.0
+      },
+      "mutton": {
+        "samples": 6,
+        "accuracy": 0.0
+      },
+      "orange": {
+        "samples": 432,
+        "accuracy": 0.0
+      },
+      "tomato": {
+        "samples": 402,
+        "accuracy": 0.0
+      }
+    },
+    "meat_report": {
+      "fresh": {
+        "precision": 0.35125448028673834,
+        "recall": 0.5355191256830601,
+        "f1-score": 0.42424242424242425,
+        "support": 183.0
+      },
+      "spoiled": {
+        "precision": 0.6956521739130435,
+        "recall": 0.1927710843373494,
+        "f1-score": 0.3018867924528302,
+        "support": 249.0
+      },
+      "unknown": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0.0
+      },
+      "accuracy": 0.33796296296296297,
+      "macro avg": {
+        "precision": 0.3489688847332606,
+        "recall": 0.24276340334013655,
+        "f1-score": 0.24204307223175148,
+        "support": 432.0
+      },
+      "weighted avg": {
+        "precision": 0.5497614842519003,
+        "recall": 0.33796296296296297,
+        "f1-score": 0.3537179975859221,
+        "support": 432.0
+      }
+    },
+    "meat_by_food": {
+      "beef": {
+        "samples": 230,
+        "accuracy": 0.3347826086956522
+      },
+      "chicken": {
+        "samples": 196,
+        "accuracy": 0.336734693877551
+      },
+      "mutton": {
+        "samples": 6,
+        "accuracy": 0.5
+      }
+    }
+  },
+  "beef_crop": {
+    "samples": 230,
+    "split": "val",
+    "scope": "Image-level comparison; no ground-truth boxes; not a localization mAP evaluation.",
+    "seconds": 47.40055449999636,
+    "manifest_sha256": "3cb2d5c91cee9c563d3875940dc54f4e0ffcb002487708bb71470486830a75fd",
+    "weights": {
+      "drive_demo\\FoodVision-AI-V2-Demo\\runs\\raw_train_30\\weights\\best.pt": "e22a545ccbe1afbcc7a0f4deb952b48b170344bf85cc102d77f46e0563ccfee5",
+      "drive_demo\\FoodVision-AI-V2-Demo\\runs\\efficientnet_meat_v1\\best.pt": "e75b00bc510636d9eae81be739792556aadf9763fda8b9c6ad1703f380de2b13"
+    },
+    "raw_all_accuracy": 0.6043478260869565,
+    "raw_by_food": {
+      "beef": {
+        "samples": 230,
+        "accuracy": 0.6043478260869565
+      }
+    },
+    "meat_report": {
+      "fresh": {
+        "precision": 0.3515981735159817,
+        "recall": 0.9390243902439024,
+        "f1-score": 0.5116279069767442,
+        "support": 82.0
+      },
+      "spoiled": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 148.0
+      },
+      "unknown": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 0.0
+      },
+      "accuracy": 0.3347826086956522,
+      "macro avg": {
+        "precision": 0.1171993911719939,
+        "recall": 0.3130081300813008,
+        "f1-score": 0.17054263565891473,
+        "support": 230.0
+      },
+      "weighted avg": {
+        "precision": 0.12535239229700218,
+        "recall": 0.3347826086956522,
+        "f1-score": 0.18240647118301315,
+        "support": 230.0
+      }
+    },
+    "meat_by_food": {
+      "beef": {
+        "samples": 230,
+        "accuracy": 0.3347826086956522
+      }
+    },
+    "crop_pipeline_joint_accuracy": 0.11304347826086956
+  },
+  "cv": {
+    "selected": "logistic_01",
+    "cv": {
+      "ridge_1": [
+        0.9559082429593777,
+        0.9681290996675683,
+        0.9663966168188828
+      ],
+      "ridge_10": [
+        0.9561111501326898,
+        0.9683410066214948,
+        0.9666186521726391
+      ],
+      "logistic_01": [
+        0.9601875041044424,
+        0.9689226142145166,
+        0.9775250578038541
+      ]
+    },
+    "selection_scope": "3 grouped folds of training data only",
+    "manifest_sha256": "3cb2d5c91cee9c563d3875940dc54f4e0ffcb002487708bb71470486830a75fd",
+    "seconds": 9.377067900000839,
+    "evaluation": {
+      "val": {
+        "samples": 2597,
+        "food_accuracy": 0.9926838659992299,
+        "joint_accuracy": 0.9792067770504428,
+        "macro_f1": 0.9773396405916467,
+        "per_class": {
+          "apple_fresh": {
+            "precision": 0.9897435897435898,
+            "recall": 1.0,
+            "f1-score": 0.9948453608247423,
+            "support": 193.0
+          },
+          "apple_spoiled": {
+            "precision": 0.9907834101382489,
+            "recall": 0.9862385321100917,
+            "f1-score": 0.9885057471264368,
+            "support": 218.0
+          },
+          "banana_fresh": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 242.0
+          },
+          "banana_spoiled": {
+            "precision": 0.9911504424778761,
+            "recall": 1.0,
+            "f1-score": 0.9955555555555555,
+            "support": 224.0
+          },
+          "beef_fresh": {
+            "precision": 0.9879518072289156,
+            "recall": 1.0,
+            "f1-score": 0.9939393939393939,
+            "support": 82.0
+          },
+          "beef_spoiled": {
+            "precision": 1.0,
+            "recall": 0.9932432432432432,
+            "f1-score": 0.9966101694915255,
+            "support": 148.0
+          },
+          "carrot_fresh": {
+            "precision": 0.9745222929936306,
+            "recall": 0.9503105590062112,
+            "f1-score": 0.9622641509433962,
+            "support": 161.0
+          },
+          "carrot_spoiled": {
+            "precision": 0.9407407407407408,
+            "recall": 0.9694656488549618,
+            "f1-score": 0.9548872180451128,
+            "support": 131.0
+          },
+          "chicken_fresh": {
+            "precision": 0.9504950495049505,
+            "recall": 0.9795918367346939,
+            "f1-score": 0.964824120603015,
+            "support": 98.0
+          },
+          "chicken_spoiled": {
+            "precision": 0.9789473684210527,
+            "recall": 0.9489795918367347,
+            "f1-score": 0.9637305699481865,
+            "support": 98.0
+          },
+          "cucumber_fresh": {
+            "precision": 0.9230769230769231,
+            "recall": 0.9375,
+            "f1-score": 0.9302325581395349,
+            "support": 64.0
+          },
+          "cucumber_spoiled": {
+            "precision": 0.9489795918367347,
+            "recall": 0.9489795918367347,
+            "f1-score": 0.9489795918367347,
+            "support": 98.0
+          },
+          "mutton_fresh": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 3.0
+          },
+          "mutton_spoiled": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 3.0
+          },
+          "orange_fresh": {
+            "precision": 0.9913419913419913,
+            "recall": 0.9662447257383966,
+            "f1-score": 0.9786324786324786,
+            "support": 237.0
+          },
+          "orange_spoiled": {
+            "precision": 0.9695431472081218,
+            "recall": 0.9794871794871794,
+            "f1-score": 0.9744897959183674,
+            "support": 195.0
+          },
+          "tomato_fresh": {
+            "precision": 0.9795918367346939,
+            "recall": 0.9917355371900827,
+            "f1-score": 0.9856262833675564,
+            "support": 242.0
+          },
+          "tomato_spoiled": {
+            "precision": 0.9681528662420382,
+            "recall": 0.95,
+            "f1-score": 0.9589905362776026,
+            "support": 160.0
+          },
+          "accuracy": 0.9792067770504428,
+          "macro avg": {
+            "precision": 0.9769456143160838,
+            "recall": 0.9778764692243516,
+            "f1-score": 0.9773396405916467,
+            "support": 2597.0
+          },
+          "weighted avg": {
+            "precision": 0.9793273386689668,
+            "recall": 0.9792067770504428,
+            "f1-score": 0.9791970114074113,
+            "support": 2597.0
+          }
+        },
+        "confusion_matrix": [
+          [
+            193,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            215,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            242,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            224,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            82,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            1,
+            147,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            153,
+            6,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2,
+            127,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            96,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            5,
+            93,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            60,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            4,
+            93,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            229,
+            4,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            191,
+            0,
+            3
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            240,
+            1
+          ],
+          [
+            0,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            5,
+            152
+          ]
+        ]
+      },
+      "test": {
+        "samples": 2488,
+        "food_accuracy": 0.9927652733118971,
+        "joint_accuracy": 0.9758842443729904,
+        "macro_f1": 0.9726669927948755,
+        "per_class": {
+          "apple_fresh": {
+            "precision": 0.9831460674157303,
+            "recall": 1.0,
+            "f1-score": 0.9915014164305949,
+            "support": 175.0
+          },
+          "apple_spoiled": {
+            "precision": 0.9707317073170731,
+            "recall": 0.995,
+            "f1-score": 0.9827160493827161,
+            "support": 200.0
+          },
+          "banana_fresh": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 193.0
+          },
+          "banana_spoiled": {
+            "precision": 0.9923076923076923,
+            "recall": 0.9961389961389961,
+            "f1-score": 0.9942196531791907,
+            "support": 259.0
+          },
+          "beef_fresh": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 91.0
+          },
+          "beef_spoiled": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 130.0
+          },
+          "carrot_fresh": {
+            "precision": 0.954248366013072,
+            "recall": 0.9668874172185431,
+            "f1-score": 0.9605263157894737,
+            "support": 151.0
+          },
+          "carrot_spoiled": {
+            "precision": 0.9523809523809523,
+            "recall": 0.9433962264150944,
+            "f1-score": 0.9478672985781991,
+            "support": 106.0
+          },
+          "chicken_fresh": {
+            "precision": 0.9405940594059405,
+            "recall": 0.9693877551020408,
+            "f1-score": 0.9547738693467337,
+            "support": 98.0
+          },
+          "chicken_spoiled": {
+            "precision": 0.968421052631579,
+            "recall": 0.9387755102040817,
+            "f1-score": 0.9533678756476683,
+            "support": 98.0
+          },
+          "cucumber_fresh": {
+            "precision": 0.9315068493150684,
+            "recall": 0.9315068493150684,
+            "f1-score": 0.9315068493150684,
+            "support": 73.0
+          },
+          "cucumber_spoiled": {
+            "precision": 0.9242424242424242,
+            "recall": 0.8714285714285714,
+            "f1-score": 0.8970588235294118,
+            "support": 70.0
+          },
+          "mutton_fresh": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 3.0
+          },
+          "mutton_spoiled": {
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1-score": 1.0,
+            "support": 3.0
+          },
+          "orange_fresh": {
+            "precision": 0.9915966386554622,
+            "recall": 0.9711934156378601,
+            "f1-score": 0.9812889812889813,
+            "support": 243.0
+          },
+          "orange_spoiled": {
+            "precision": 0.973404255319149,
+            "recall": 0.9838709677419355,
+            "f1-score": 0.9786096256684492,
+            "support": 186.0
+          },
+          "tomato_fresh": {
+            "precision": 0.970954356846473,
+            "recall": 0.9873417721518988,
+            "f1-score": 0.9790794979079498,
+            "support": 237.0
+          },
+          "tomato_spoiled": {
+            "precision": 0.9757575757575757,
+            "recall": 0.936046511627907,
+            "f1-score": 0.9554896142433235,
+            "support": 172.0
+          },
+          "accuracy": 0.9758842443729904,
+          "macro avg": {
+            "precision": 0.9738495554226775,
+            "recall": 0.9717207773878889,
+            "f1-score": 0.9726669927948755,
+            "support": 2488.0
+          },
+          "weighted avg": {
+            "precision": 0.9758788548036242,
+            "recall": 0.9758842443729904,
+            "f1-score": 0.975773686252776,
+            "support": 2488.0
+          }
+        },
+        "confusion_matrix": [
+          [
+            175,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            199,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            193,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            258,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            91,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            130,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            146,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            6,
+            100,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            95,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            6,
+            92,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            68,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            2,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            5,
+            61,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            3,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            236,
+            4,
+            1,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2,
+            183,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            234,
+            2
+          ],
+          [
+            1,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            5,
+            161
+          ]
+        ]
+      }
+    }
+  },
+  "validation": {
+    "clean": {
+      "baseline": {
+        "samples": 2597,
+        "food_accuracy": 0.9896033885252215,
+        "coverage": 0.9487870619946092,
+        "accepted_accuracy": 0.9902597402597403,
+        "correct_and_accepted": 0.9395456295725837,
+        "spoiled_as_fresh": 9,
+        "spoiled_recall": 0.9333333333333333
+      },
+      "dual": {
+        "samples": 2597,
+        "food_accuracy": 0.9911436272622256,
+        "coverage": 0.9626492106276473,
+        "accepted_accuracy": 0.9896,
+        "correct_and_accepted": 0.9526376588371197,
+        "spoiled_as_fresh": 8,
+        "spoiled_recall": 0.9458823529411765
+      }
+    },
+    "rotation": {
+      "baseline": {
+        "samples": 86,
+        "food_accuracy": 1.0,
+        "coverage": 0.9534883720930233,
+        "accepted_accuracy": 0.975609756097561,
+        "correct_and_accepted": 0.9302325581395349,
+        "spoiled_as_fresh": 1,
+        "spoiled_recall": 0.9069767441860465
+      },
+      "dual": {
+        "samples": 86,
+        "food_accuracy": 1.0,
+        "coverage": 0.9651162790697675,
+        "accepted_accuracy": 0.9759036144578314,
+        "correct_and_accepted": 0.9418604651162791,
+        "spoiled_as_fresh": 1,
+        "spoiled_recall": 0.9069767441860465
+      }
+    },
+    "dim_blur": {
+      "baseline": {
+        "samples": 86,
+        "food_accuracy": 0.9883720930232558,
+        "coverage": 0.8953488372093024,
+        "accepted_accuracy": 0.987012987012987,
+        "correct_and_accepted": 0.8837209302325582,
+        "spoiled_as_fresh": 1,
+        "spoiled_recall": 0.8837209302325582
+      },
+      "dual": {
+        "samples": 86,
+        "food_accuracy": 0.9883720930232558,
+        "coverage": 0.9186046511627907,
+        "accepted_accuracy": 0.9873417721518988,
+        "correct_and_accepted": 0.9069767441860465,
+        "spoiled_as_fresh": 1,
+        "spoiled_recall": 0.9069767441860465
+      }
+    },
+    "occlusion": {
+      "baseline": {
+        "samples": 86,
+        "food_accuracy": 1.0,
+        "coverage": 0.9418604651162791,
+        "accepted_accuracy": 0.9876543209876543,
+        "correct_and_accepted": 0.9302325581395349,
+        "spoiled_as_fresh": 0,
+        "spoiled_recall": 0.9069767441860465
+      },
+      "dual": {
+        "samples": 86,
+        "food_accuracy": 1.0,
+        "coverage": 0.9651162790697675,
+        "accepted_accuracy": 0.9879518072289156,
+        "correct_and_accepted": 0.9534883720930233,
+        "spoiled_as_fresh": 0,
+        "spoiled_recall": 0.9302325581395349
+      }
+    }
+  },
+  "dual_test": {
+    "test": {
+      "baseline": {
+        "samples": 2488,
+        "food_accuracy": 0.9939710610932476,
+        "coverage": 0.9417202572347267,
+        "accepted_accuracy": 0.9923175416133163,
+        "correct_and_accepted": 0.9344855305466238,
+        "spoiled_as_fresh": 8,
+        "spoiled_recall": 0.9338235294117647
+      },
+      "dual": {
+        "samples": 2488,
+        "food_accuracy": 0.9947749196141479,
+        "coverage": 0.9541800643086816,
+        "accepted_accuracy": 0.9907329401853412,
+        "correct_and_accepted": 0.9453376205787781,
+        "spoiled_as_fresh": 10,
+        "spoiled_recall": 0.9468954248366013
+      }
+    },
+    "parity_samples": 18,
+    "test_seconds": 647.3586445999972,
+    "threshold": 0.8,
+    "selection": "Validation only; test used for reporting, not threshold selection.",
+    "limitation": "Historical source test has been used in earlier project development; not a new independently collected external test."
+  },
+  "paired_group_bootstrap_95ci": {
+    "food_accuracy_delta": [
+      -0.0011788515658671677,
+      0.0028160526086634424
+    ],
+    "correct_and_accepted_delta": [
+      0.0064671288998475905,
+      0.01599602521549552
+    ],
+    "spoiled_as_fresh_rate_delta": [
+      0.0,
+      0.0021264444083738394
+    ]
+  },
+  "test_by_food": {
+    "apple": {
+      "baseline": {
+        "samples": 375,
+        "wrong_food": 5,
+        "spoiled_as_fresh": 1
+      },
+      "dual": {
+        "samples": 375,
+        "wrong_food": 5,
+        "spoiled_as_fresh": 1
+      }
+    },
+    "banana": {
+      "baseline": {
+        "samples": 452,
+        "wrong_food": 0,
+        "spoiled_as_fresh": 0
+      },
+      "dual": {
+        "samples": 452,
+        "wrong_food": 0,
+        "spoiled_as_fresh": 0
+      }
+    },
+    "beef": {
+      "baseline": {
+        "samples": 221,
+        "wrong_food": 0,
+        "spoiled_as_fresh": 0
+      },
+      "dual": {
+        "samples": 221,
+        "wrong_food": 0,
+        "spoiled_as_fresh": 0
+      }
+    },
+    "carrot": {
+      "baseline": {
+        "samples": 257,
+        "wrong_food": 1,
+        "spoiled_as_fresh": 3
+      },
+      "dual": {
+        "samples": 257,
+        "wrong_food": 1,
+        "spoiled_as_fresh": 4
+      }
+    },
+    "chicken": {
+      "baseline": {
+        "samples": 196,
+        "wrong_food": 0,
+        "spoiled_as_fresh": 1
+      },
+      "dual": {
+        "samples": 196,
+        "wrong_food": 0,
+        "spoiled_as_fresh": 2
+      }
+    },
+    "cucumber": {
+      "baseline": {
+        "samples": 143,
+        "wrong_food": 1,
+        "spoiled_as_fresh": 0
+      },
+      "dual": {
+        "samples": 143,
+        "wrong_food": 3,
+        "spoiled_as_fresh": 0
+      }
+    },
+    "mutton": {
+      "baseline": {
+        "samples": 6,
+        "wrong_food": 0,
+        "spoiled_as_fresh": 0
+      },
+      "dual": {
+        "samples": 6,
+        "wrong_food": 0,
+        "spoiled_as_fresh": 0
+      }
+    },
+    "orange": {
+      "baseline": {
+        "samples": 429,
+        "wrong_food": 5,
+        "spoiled_as_fresh": 0
+      },
+      "dual": {
+        "samples": 429,
+        "wrong_food": 2,
+        "spoiled_as_fresh": 0
+      }
+    },
+    "tomato": {
+      "baseline": {
+        "samples": 409,
+        "wrong_food": 3,
+        "spoiled_as_fresh": 3
+      },
+      "dual": {
+        "samples": 409,
+        "wrong_food": 2,
+        "spoiled_as_fresh": 3
+      }
+    }
+  }
+}
